@@ -17,3 +17,8 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+app.get('/api/random', (req, res) => {
+    const randomNumber = Math.floor(Math.random() * 100); // Generate a random number
+    res.json({ message: `Random number: ${randomNumber}` });
+});

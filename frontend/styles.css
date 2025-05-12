@@ -1,32 +1,218 @@
 body {
+    padding:0;
     margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-}
-
-header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-}
-
-main {
-    padding: 20px;
-}
-
-canvas {
-    display: block;
-    margin: 0 auto;
-}
-
-footer {
-    text-align: center;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    position: fixed;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
     width: 100%;
-    bottom: 0;
-}
+    font-family: monospace;
+    line-height: 1.4em;
+    font-size: 12;
+    background:#000000;
+  }
+  
+  button {
+    padding: 6px 14px;
+    font-family:  inherit;
+    border-radius: 6px;
+  }
+  
+  button:hover {
+    background-color:rgb(192, 192, 192)
+  }
+  
+  button:active {
+    background-color: #00ff08;
+    box-shadow: 0 3px #666;
+  }
+  
+  
+  #terminal {
+    overflow-y: scroll;
+    margin: 0;
+    padding: 2em;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    color: white;
+  }
+  #terminal * {
+  }
+  
+  #thinking { 
+    display: none;
+  }
+  #prompt {
+      display: inline-block;
+      flex-grow: 1;
+      
+      border: none;
+      outline: none;
+      
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+      background: inherit;
+    width: 90%;
+  }
+  
+  .blink {
+    animation: blink-animation .7s steps(5, start) infinite;
+    -webkit-animation: blink-animation .7s steps(5, start) infinite;
+  }
+  @keyframes blink-animation {
+    to {
+      visibility: hidden;
+    }
+  }
+  @-webkit-keyframes blink-animation {
+    to {
+      visibility: hidden;
+    }
+  }
+  
+  #commandline {
+      flex-direction: row;
+      color: inherit;
+  }
+  .user {
+    color: rgb(0, 255, 0);
+  }
+  
+  .function {
+    color: rgb(100, 100, 100);
+  }
+  .system {
+    color: rgb(84, 161, 255);
+  }
+  
+  .assistant {
+    color: rgb(255, 0, 255);
+  }
+  
+  .error {
+    color: rgb(255, 255, 0);
+  }
+  
+  #camera-container {
+    position: fixed;
+    top: 0%;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    width: 80vh;
+    height: 80vh;
+  }
+  
+  #webcam, #image-capture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80%;
+  }
+  
+  #image-capture{
+    z-index: 1000;
+  }
+  
+  #controls-container {
+    position: absolute;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    top: 80%;
+  }
+  
+  #button-container {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+  }
+  
+  #gpt-vision {
+    text-align: left;
+  }
+  
+  #gpt-vision-text {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2%;
+    border-radius: 5px;
+    font-size: 1vw;
+    line-height: 1.5;
+  }
+  
+  /* Define the styles for the microphone circle */
+  #commandline .mic-circle {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    position: relative;
+    margin-bottom: 2px;
+  
+  }
+  
+  #commandline .mic-circle::before {
+    /* 
+    content: '\1F3A4'; // Unicode for microphone symbol 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    color: white;
+    */
+  }
+  
+  #commandline .mic-circle.green {
+    background-color: rgb(0, 255, 0);
+    animation: pulse 1.5s linear infinite;
+  }
+  
+  #commandline .mic-circle.red {
+    background-color: rgb(255, 0, 0);
+    animation: blink 1s steps(5, start) infinite;
+  }
+  
+  
+  @keyframes pulse {
+    15% {
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 0.2;
+    }
+    85% {
+      opacity: 0.8;
+    }
+  }
+  
+  
+  @keyframes blink {
+    to {
+      visibility: hidden;
+    }
+  }
+  
+  
+  /*
+  canvas {
+    display:
+      block;
+    position:
+      absolute;
+    left:
+      50%;
+    top:
+      50%;
+    transform:
+      translate(-50%, -50%);
+    width:
+      50%;
+    height:
+      50%;
+    text-align:
+      center;
+    z-index: 1000;
+  }*/

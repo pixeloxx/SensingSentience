@@ -1,23 +1,7 @@
-# Headless Raspberry Pi Project
+# Sentient Senses 
 
-This project is designed to run a web application on a headless Raspberry Pi, utilizing a Node.js backend and a p5.js frontend. The application will serve as a kiosk interface, providing an interactive experience through a web browser.
+An art project running application on a headless Raspberry Pi, utilizing a Node.js backend and a p5.js frontend. The application will serve as a kiosk interface, providing an interactive experience through a web browser.
 
-## Project Structure
-
-```
-headless-raspberry-pi-project
-├── backend
-│   ├── server.js          # Main entry point for the Node.js server
-│   ├── package.json       # npm configuration file for backend dependencies
-│   └── tsconfig.json      # TypeScript configuration for backend
-├── frontend
-│   ├── index.html         # Main HTML file for the web application
-│   ├── sketch.js          # p5.js sketch for rendering graphics
-│   └── styles.css         # CSS styles for the frontend web application
-├── python-scripts
-│   └── script.py          # Python scripts for specific operations
-└── README.md              # Documentation for the project
-```
 
 ## Setup Instructions
 
