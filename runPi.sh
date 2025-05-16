@@ -11,6 +11,6 @@ until curl -s http://localhost:5173 > /dev/null; do
   sleep 2
 done
 
-# Start a minimal X session and launch Chromium in kiosk mode
-echo "Launching Chromium in kiosk mode using xinit..."
-xinit /usr/bin/chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 --
+# Launch Chromium in kiosk mode on the attached display
+echo "Launching Chromium in kiosk mode..."
+DISPLAY=:0 chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 &
