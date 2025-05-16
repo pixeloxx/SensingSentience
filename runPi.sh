@@ -13,4 +13,4 @@ done
 
 # Start a minimal X session and launch Chromium in kiosk mode
 echo "Launching Chromium in kiosk mode using xinit..."
-xinit /usr/bin/chromium-browser -- --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173
+xinit /usr/bin/chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 --
