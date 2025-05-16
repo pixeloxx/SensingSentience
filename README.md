@@ -58,6 +58,7 @@ An art project running application on a headless Raspberry Pi, utilizing a Node.
   sudo apt update && sudo apt upgrade -y
   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs chromium-browser git
+  sudo apt install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox chromium-browser
   ```
 
 ### 4. **Clone the Repository**

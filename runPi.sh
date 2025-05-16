@@ -1,29 +1,16 @@
 #!/bin/bash
 # filepath: /Users/lfranzke/Documents/ZHdK/15_PhD/06_Prototypes/11_SentientSenses/runPi.sh
 
-echo "Setting up backend and frontend to start on boot..."
-RC_LOCAL_FILE="/etc/rc.local"
-if ! grep -q "npm start" "$RC_LOCAL_FILE"; then
-    sudo sed -i "/^exit 0/i cd $(pwd) && npm start &" "$RC_LOCAL_FILE"
-fi
+# Start backend and frontend servers in the background
+echo "Starting backend and frontend servers..."
+npm start &
 
-echo "Creating kiosk launcher script..."
-KIOSK_SCRIPT="/home/pi/start-kiosk.sh"
-cat << 'EOF' | sudo tee $KIOSK_SCRIPT > /dev/null
-#!/bin/bash
 # Wait for the frontend server to be ready
+echo "Waiting for frontend server to be ready on http://localhost:5173 ..."
 until curl -s http://localhost:5173 > /dev/null; do
   sleep 2
 done
-chromium-browser --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173
-EOF
-sudo chmod +x $KIOSK_SCRIPT
 
-echo "Setting up autostart for kiosk mode..."
-AUTOSTART_FILE="/etc/xdg/lxsession/LXDE-pi/autostart"
-if ! grep -q "start-kiosk.sh" "$AUTOSTART_FILE"; then
-    echo "@/home/pi/start-kiosk.sh" | sudo tee -a "$AUTOSTART_FILE"
-fi
-
-echo "Starting the project..."
-npm start
+# Start a minimal X session and launch Chromium in kiosk mode
+echo "Launching Chromium in kiosk mode using xinit..."
+xinit /usr/bin/chromium-browser -- --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173
