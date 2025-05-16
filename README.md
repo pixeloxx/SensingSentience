@@ -37,6 +37,49 @@ An art project running application on a headless Raspberry Pi, utilizing a Node.
 - Interactions with the p5.js sketch will be handled through the frontend, while the backend will manage data and requests.
 - Future enhancements may include additional Python scripts for backend processing.
 
-## Contributing
+---
 
-Feel free to contribute to this project by submitting issues or pull requests. Your feedback and suggestions are welcome!
+## 🚀 Quick Start: Setting Up on a New Raspberry Pi
+
+### 1. **Prepare the SD Card**
+- Flash the latest Raspberry Pi OS (Lite or Desktop) to your SD card using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+- **Enable SSH in imager**  
+
+### 2. **First Boot**
+- Insert the SD card into the Raspberry Pi and power it on.
+- Connect via SSH:  
+  ```bash
+  ssh <username>@<devicename>.local
+  ```
+
+### 3. **Install Dependencies**
+- Update the system and install Node.js, npm, and Chromium:
+  ```bash
+  sudo apt update && sudo apt upgrade -y
+  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+  sudo apt install -y nodejs chromium-browser git
+  ```
+
+### 4. **Clone the Repository**
+```bash
+git clone https://github.com/pixeloxx/SentientSenses.git
+cd SentientSenses
+```   
+
+### 5. **Install Project Dependencies**
+```bash
+npm install
+```
+
+### 6. **Start the Application**
+- To start both backend and frontend together:
+  ```bash
+  npm start
+  ```
+- The backend will run on port 3000, and the frontend (Vite dev server) on port 5173.
+
+### 7. **Set Up Kiosk Mode (Optional)**
+- To launch the frontend in full-screen on boot, add this line to `/etc/xdg/lxsession/LXDE-pi/autostart`:
+  ```
+  @chromium-browser --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173
+  ```
