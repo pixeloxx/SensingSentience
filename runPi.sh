@@ -1,7 +1,13 @@
 #!/bin/bash
-# filepath: /Users/lfranzke/Documents/ZHdK/15_PhD/06_Prototypes/11_SentientSenses/runPi.sh
 
-# Start backend and frontend servers in the background
+# Activate Python virtual environment
+source "$(dirname "$0")/python-scripts/venv/bin/activate"
+
+# Kill any process using port 3000 or 5173
+fuser -k 3000/tcp 2>/dev/null
+fuser -k 5173/tcp 2>/dev/null
+
+# Start backend and frontend servers in the background on port :3000
 echo "Starting backend and frontend servers..."
 npm start &
 

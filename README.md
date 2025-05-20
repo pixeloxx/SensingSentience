@@ -61,9 +61,9 @@ An art project running application on a headless Raspberry Pi, utilizing a Node.
   sudo apt install -y nodejs chromium-browser git
   openbox chromium-browser
 
-  sudo apt install portaudio19-dev
-  pip install SpeechRecognition pyaudio
-  pip install git+https://github.com/openai/whisper.git
+# Now install Python packages inside the venv
+pip install SpeechRecognition pyaudio git+https://github.com/openai/whisper.git
+
 ### 4. **Clone the Repository**
 ```bash
 git clone https://github.com/pixeloxx/SentientSenses.git
@@ -75,6 +75,12 @@ cd SentientSenses
 npm install
 ```
 
+# Create and activate a Python virtual environment and install packages
+python3 -m venv python-scripts/venv
+source python-scripts/venv/bin/activate
+pip3 install SpeechRecognition pyaudio git+https://github.com/openai/whisper.git
+
+
 ### 6. **Start the Application**
 - To start both backend and frontend together:
   ```bash
@@ -83,4 +89,7 @@ npm install
 - The backend will run on port 3000, and the frontend (Vite dev server) on port 5173.
 
 ### 7. **Set Up Kiosk Mode and autostart
-
+```bash
+chmod +x runPi.sh
+./runPi.sh
+```
