@@ -17,3 +17,4 @@ yarn-error.log*
 # Python cache
 __pycache__/
 *.pyc
+python-scripts/venv/
