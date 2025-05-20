@@ -42,7 +42,7 @@ An art project running application on a headless Raspberry Pi, utilizing a Node.
 ## 🚀 Quick Start: Setting Up on a New Raspberry Pi
 
 ### 1. **Prepare the SD Card**
-- Flash the latest Raspberry Pi OS (Lite or Desktop) to your SD card using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+- Flash the latest Raspberry Pi OS (Desktop) to your SD card using [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
 - **Enable SSH in imager**  
 
 ### 2. **First Boot**
@@ -53,14 +53,17 @@ An art project running application on a headless Raspberry Pi, utilizing a Node.
   ```
 
 ### 3. **Install Dependencies**
-- Update the system and install Node.js, npm, and Chromium:
+- Update the system and install Node.js, npm, and Chromium etc:
   ```bash
+  sudo apt install wtype
   sudo apt update && sudo apt upgrade -y
   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs chromium-browser git
-  sudo apt install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox chromium-browser
-  ```
+  openbox chromium-browser
 
+  sudo apt install portaudio19-dev
+  pip install SpeechRecognition pyaudio
+  pip install git+https://github.com/openai/whisper.git
 ### 4. **Clone the Repository**
 ```bash
 git clone https://github.com/pixeloxx/SentientSenses.git
@@ -79,8 +82,5 @@ npm install
   ```
 - The backend will run on port 3000, and the frontend (Vite dev server) on port 5173.
 
-### 7. **Set Up Kiosk Mode (Optional)**
-- To launch the frontend in full-screen on boot, add this line to `/etc/xdg/lxsession/LXDE-pi/autostart`:
-  ```
-  @chromium-browser --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173
-  ```
+### 7. **Set Up Kiosk Mode and autostart
+

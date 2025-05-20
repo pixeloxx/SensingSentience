@@ -13,9 +13,8 @@ echo "Installing required software..."
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
 
-# Install Chromium and LXDE for desktop environment
+# Install Chromium and node
   sudo apt update && sudo apt upgrade -y
-  sudo apt install --no-install-recommends raspberrypi-ui-mods lxsession openbox
   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs chromium-browser git
 
