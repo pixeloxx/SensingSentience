@@ -4,7 +4,7 @@ import threading
 import time
 import random
 import speech_recognition as sr
-from Speech_Recognizer import SpeechRecognizer  # <-- import here
+from whisperLive import SpeechRecognizer  
 
 # 
 # Comms 
@@ -22,8 +22,6 @@ def send_random_messages():
         sys.stdout.flush()
         time.sleep(50)
 
-
-
 def main():
     # Print available microphones
     print("Available microphones:", file=sys.stderr)
@@ -33,26 +31,25 @@ def main():
 
     # Use the default microphone (no device_index)
     try:
-        mic = sr.Microphone()  # Use default mic
-        recognizer = sr.Recognizer()
-        _recognizer = SpeechRecognizer(model_size="small")
+        _recognizer = SpeechRecognizer(size="medium")
 
         print("\nListening...", file=sys.stderr)
 
-        with mic as source:
-            recognizer.adjust_for_ambient_noise(source)
-            while True:
-                print("Listening...", file=sys.stderr)
-                audio = recognizer.listen(source)
-                try:
-                    text = _recognizer.recognize(audio)
-                    if text:
-                        print(f"You said: {text}", file=sys.stderr)
-                        send_message("speech", text)
-                    else:
-                        print("Low confidence, ignoring utterance.", file=sys.stderr)
-                except Exception as e:
-                    print(f"Could not recognize speech; {e}", file=sys.stderr)
+      #   with mic as source:
+      #      recognizer.adjust_for_ambient_noise(source)
+      #      while True:
+      #          print("Listening...", file=sys.stderr)
+      #          text = recognizer.recognize(timeout=30)
+      #          # audio = recognizer.listen(source)
+      #          try:
+      #              text = _recognizer.recognize(audio)
+      #              if text:
+      #                  print(f"You said: {text}", file=sys.stderr)
+      #                  send_message("speech", text)
+      #              else:
+      #                  print("Low confidence, ignoring utterance.", file=sys.stderr)
+      #          except Exception as e:
+      #              print(f"Could not recognize speech; {e}", file=sys.stderr)
 
     except KeyboardInterrupt:
         print("\nTerminating the program.", file=sys.stderr)

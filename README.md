@@ -28,8 +28,6 @@ An art project running application on a headless Raspberry Pi, utilizing a Node.
 3. **Frontend Setup:**
    - Open `frontend/index.html` in a Chromium browser on your Raspberry Pi to access the web application.
 
-4. **Python Scripts:**
-   - The Python scripts can be executed as needed. Ensure you have Python installed on your Raspberry Pi.
 
 ## Usage Guidelines
 
@@ -76,8 +74,8 @@ npm install
 ```
 
 # Create and activate a Python virtual environment and install packages
-python3 -m venv python-scripts/venv
-source python-scripts/venv/bin/activate
+python3 -m venv python/venv
+source python/venv/bin/activate
 pip3 install SpeechRecognition pyaudio git+https://github.com/openai/whisper.git
 
 

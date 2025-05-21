@@ -112,7 +112,7 @@ const py = spawn('python3', [
   
   // Optional: Handle Python errors and exit
   py.stderr.on('data', (data) => {
-    console.error('Python error:', data.toString());
+    console.error('Python:', data.toString());
   });
   py.on('close', (code) => {
     console.log(`Python process exited with code ${code}`);
