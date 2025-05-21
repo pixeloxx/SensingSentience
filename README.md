@@ -76,14 +76,14 @@ npm install
 # Create and activate a Python virtual environment and install packages
 python3 -m venv python/venv
 source python/venv/bin/activate
-pip3 install SpeechRecognition pyaudio git+https://github.com/openai/whisper.git
+pip3 install pyaudio vosk sounddevice
 
 
 ### 6. **Start the Application**
 - To start both backend and frontend together:
-  ```bash
+```bash
   npm start
-  ```
+```
 - The backend will run on port 3000, and the frontend (Vite dev server) on port 5173.
 
 ### 7. **Set Up Kiosk Mode and autostart

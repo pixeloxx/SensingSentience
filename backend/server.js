@@ -12,15 +12,13 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 
-
-let backendMessage = 'testing ';
 app.use(cors());
 app.use(express.json());
 
 
 // Example: broadcast to all clients
-function broadcastUpdate() {
-    const data = JSON.stringify({ messageIN: textIn, messageOut: textOut });
+function broadcastUpdate(data) {
+ //   const data = JSON.stringify({ variable: textIn, messageINComplete: complete,  messageOut: textOut });
     wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(data);
@@ -29,10 +27,11 @@ function broadcastUpdate() {
 }
 
 // Example: update messages and broadcast
-function updateMessages(newIn, newOut) {
-    textIn = newIn;
-    textOut = newOut;
-    broadcastUpdate();
+function updateMessages(newIn, newInComplete, newOut) {
+    // create object literal to store three variables 
+    // and send to all clients
+    const data = JSON.stringify({ messageIn: newIn, messageInComplete: newInComplete,  messageOut: newOut });
+    broadcastUpdate(data);
 }
 
 
@@ -57,37 +56,41 @@ server.listen(PORT, () => {
 });
 // python start and communication 
 // Start the Python process
-const py = spawn('python3', [
-    path.join(__dirname, '../python-scripts/script.py')
-  ]);
+const py = spawn('python3', ['script.py'], {
+    cwd: path.join(__dirname, '../python') // Set working directory to 'python'
+});
   
   // Listen for any message from Python
-  py.stdout.on('data', (data) => {
-      data.toString().split('\n').filter(Boolean).forEach(line => {
-          try {
-              const msg = JSON.parse(line);
-              if (msg.speech) {
-                  console.log('Python textToSpeech:', msg.speech);
-              } else {
-                msg.speech = ""
-              }
-              if (msg.synth) {
+py.stdout.on('data', (data) => {
+    data.toString().split('\n').filter(Boolean).forEach(line => {
+        try {
+            const msg = JSON.parse(line); // Attempt to parse JSON
+            let complete = false;
+            if (msg.confirmedText) {
+                console.log('Python speech to text:', msg.confirmedText);
+                complete = true;
+                msg.speech = msg.confirmedText
+            } else if (msg.interimResult) {
+                console.log('Python speech to text:', msg.interimResult);
+                complete = false;
+                msg.speech = msg.interimResult
+            } else {
+                msg.speech = "";
+            }
+
+            if (msg.synth) {
                 console.log('Python synth speech:', msg.synth);
+            } else {
+                msg.synth = "";
+            }
 
-              } else {
-                msg.synth = ""
-              }
-
-              updateMessages(
-                msg.speech,
-                msg.syntheisis
-             );
-
-          } catch (e) {
-              console.error('Failed to parse Python message:', e, line);
-          }
-      });
-  });
+            updateMessages(msg.speech, complete, msg.synth);
+        } catch (e) {
+            // Log and ignore non-JSON messages
+            console.error('Failed to parse Python message (non-JSON):', line);
+        }
+    });
+});
   
   // Function to send a message and wait for a reply (optional, for call-response)
   function sendMessage(message) {

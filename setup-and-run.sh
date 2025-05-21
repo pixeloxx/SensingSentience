@@ -33,12 +33,15 @@ if ! grep -q "chromium-browser" "$AUTOSTART_FILE"; then
 fi
 
 echo "Setting up backend and frontend to start on boot..."
-# Add npm start to rc.local
-RC_LOCAL_FILE="/etc/rc.local"
-if ! grep -q "npm start" "$RC_LOCAL_FILE"; then
-    sudo sed -i "/^exit 0/i cd $(pwd) && npm start &" "$RC_LOCAL_FILE"
+# setup ./run.sh to start on boot on raspberry pi
+RUN_FILE="/etc/xdg/lxsession/LXDE-pi/run.sh"
+if ! grep -q "run.sh" "$RUN_FILE"; then
+    echo "@bash $(realpath ./run.sh)" | sudo tee -a "$RUN_FILE"
 fi
+
+echo "Making runPi.sh executable..."
+chmod +x ./run.sh
 
 echo "Starting the project..."
 # Start the project
-npm start
+./run.sh &

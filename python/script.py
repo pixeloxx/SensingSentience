@@ -1,11 +1,7 @@
 import sys
 import json
-import threading
-import time
-import random
-import speech_recognition as sr
-from whisperLive import SpeechRecognizer  
-
+from _vosk import SpeechRecognizer  
+import sounddevice as sd
 # 
 # Comms 
 # 
@@ -15,41 +11,24 @@ def send_message(name, string):
     print(json.dumps(msg))
     sys.stdout.flush()
 
-def send_random_messages():
-    while True:
-        msg = {"random": f"Random number: {random.randint(1, 100)}"}
-        print(json.dumps(msg))
-        sys.stdout.flush()
-        time.sleep(50)
+def STTCallBack(text, partial):
+      if text:
+           print(f"Final Text: {text}",file=sys.stderr)
+           send_message("confirmedText", text)
+      if partial:
+           print(f"Partial Text: {partial}",file=sys.stderr)
+           send_message("interimResult", partial)
 
 def main():
     # Print available microphones
     print("Available microphones:", file=sys.stderr)
-    mic_list = sr.Microphone.list_microphone_names()
-    for i, name in enumerate(mic_list):
-        print(f"{i}: {name}", file=sys.stderr)
-
+    print(sd.query_devices(), file=sys.stderr)
+   
     # Use the default microphone (no device_index)
     try:
-        _recognizer = SpeechRecognizer(size="medium")
+        _recognizer = SpeechRecognizer(size="medium", callback=STTCallBack)
 
         print("\nListening...", file=sys.stderr)
-
-      #   with mic as source:
-      #      recognizer.adjust_for_ambient_noise(source)
-      #      while True:
-      #          print("Listening...", file=sys.stderr)
-      #          text = recognizer.recognize(timeout=30)
-      #          # audio = recognizer.listen(source)
-      #          try:
-      #              text = _recognizer.recognize(audio)
-      #              if text:
-      #                  print(f"You said: {text}", file=sys.stderr)
-      #                  send_message("speech", text)
-      #              else:
-      #                  print("Low confidence, ignoring utterance.", file=sys.stderr)
-      #          except Exception as e:
-      #              print(f"Could not recognize speech; {e}", file=sys.stderr)
 
     except KeyboardInterrupt:
         print("\nTerminating the program.", file=sys.stderr)
@@ -57,10 +36,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# Start the random message thread
-threading.Thread(target=send_random_messages, daemon=True).start()
 
 # Still listen for stdin messages
 #
