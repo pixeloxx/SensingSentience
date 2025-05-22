@@ -29,6 +29,7 @@
         "pako": "^2.1.0",
         "pixelmatch": "^7.1.0",
         "pngjs": "^7.0.0",
+        "serialport": "^13.0.0",
         "source-map": "^0.6.1",
         "terminal": "^0.1.4",
         "the": "^1.0.2",

@@ -41,11 +41,11 @@ class SpeechToText {
 
     }
     pause() {
-        return this.sendMessage({ action: 'pause' });
+        return this.sendMessage({ STT: 'pause' });
     }
 
     resume() {
-        return this.sendMessage({ action: 'resume' });
+        return this.sendMessage({ STT: 'resume' });
     }
 
     sendMessage(message) {

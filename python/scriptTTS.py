@@ -73,8 +73,8 @@ def main():
                 msg = {}
 
             # Handle pause/resume commands
-            if isinstance(msg, dict) and "command" in msg:
-                handle_command(msg["command"])
+            if isinstance(msg, dict) and "tts" in msg:
+                handle_command(msg["tts"])
                 continue
 
             # Otherwise, treat as TTS request

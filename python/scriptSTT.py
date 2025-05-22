@@ -70,11 +70,11 @@ def stdin_listener():
         print("received data in python", file=sys.stderr)
         try:
             data = json.loads(line)
-            if data.get("command") == "pause":
+            if data.get("STT") == "pause":
                 pauseSpeechToText()
-            elif data.get("command") == "resume":
+            elif data.get("STT") == "resume":
                 resumeSpeechToText()
-            elif data.get("command") == "send_message":
+            elif data.get("STT") == "send_message":
                 send_message(data.get("name", ""), data.get("message", ""))
             else:
                 sys.stdout.flush()

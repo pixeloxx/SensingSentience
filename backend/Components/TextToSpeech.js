@@ -50,10 +50,10 @@ class TextToSpeech {
     }
 
     pause() {
-        py.stdin.write(JSON.stringify({ command: "pause" }) + "\n");
+        py.stdin.write(JSON.stringify({ TTS: "pause" }) + "\n");
     }
     resume() {
-        py.stdin.write(JSON.stringify({ command: "resume" }) + "\n");
+        py.stdin.write(JSON.stringify({ TTS: "resume" }) + "\n");
     }
 
    defaultCallback(data) {
