@@ -64,7 +64,7 @@ function comCallback(message) {
 
 // test
 
-let serialTest = new SerialCommunication(comCallback);
+// let serialTest = new SerialCommunication(comCallback);
 
 if (config.communicationMethod == "BLE") {
   communicationMethod = new BLECommunication(comCallback);
