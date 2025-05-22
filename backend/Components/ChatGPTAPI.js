@@ -159,7 +159,7 @@ class ChatGPTAPI {
           });
 
           const oJson = await response.json();
-          console.log(oJson);
+         // console.log(oJson);
 
           // Handle API errors
           if (oJson.error && oJson.error.message) {
@@ -174,7 +174,7 @@ class ChatGPTAPI {
                 this.comObject,
                 returnObject
               );
-              console.log(result);
+             // console.log(result);
               resolve(result);
             } else {
                       // Handle normal response
@@ -231,7 +231,9 @@ class ChatGPTAPI {
       returnObject.role = "error";
       return returnObject;
     }
-    functionArguments.defaultValue = "nothing";
+
+    returnObject.arguments = functionArguments
+    //functionArguments.defaultValue = "nothing";
     console.log("arguments:", functionArguments);
 
     // Check if function exists in communication method or local functions

@@ -1,6 +1,7 @@
 window.frontendFunctions = {
     // custom functions after this line
-    start_party: function(command) {
+    start_party: function (command) {
+        console.log("Starting party mode");
         function createGlitter() {
             const glitter = document.createElement('div');
             glitter.style.position = 'absolute';
@@ -23,6 +24,10 @@ window.frontendFunctions = {
                 glitter.remove();
             }, 5000);
         }
-
+        function getRandomColor() {
+            const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink', 'orange'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        setInterval(createGlitter, 10);
     }
 }

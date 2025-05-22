@@ -100,7 +100,7 @@ wss.on('connection', (ws, req) => {
       }
       console.log('Received command via WebSocket:', cmd);
 
-      // Example: handle a "pause" command
+      // handle a "pause" command
       if (cmd.command === 'pause') {
         speechToText.pause();
         ws.send('Sent pause command to Python');

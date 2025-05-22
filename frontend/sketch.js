@@ -69,13 +69,15 @@ function connectToWebSocket() {
             if (data.messageInComplete) {
                 newInComplete = data.messageInComplete;
             }
-            if (data.functionCall) {
-                console.log('Function call received:', data.functionCall);
+            if (data.functionName) {
+                console.log('Function call received:', data.functionName);
                 // Call the function with the provided arguments
-                const functionName = data.functionCall.name;
-                const args = data.functionCall.arguments;
+                const functionName = data.functionName;
+                const args = data.arguments;
                 const func = frontendFunctions[functionName];
+                console.log('Looking up function:', functionName, frontendFunctions);
                 if (typeof func === 'function') {
+                    console.log(`Calling function ${functionName} with arguments:`, args);
                     // If args is an array, spread it; if it's an object, pass as is
                     if (Array.isArray(args)) {
                         func(...args);
