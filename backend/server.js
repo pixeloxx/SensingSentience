@@ -1,122 +1,212 @@
-const express = require('express');
-const cors = require('cors');
-const { spawn } = require('child_process');
-const path = require('path');
-const http = require('http');
-const WebSocket = require('ws')
+import express from 'express';
+import cors from 'cors';
+
+import http from 'http';
+import { WebSocketServer, WebSocket } from 'ws';
+import ChatGPTAPI from './Components/ChatGPTAPI.js';
+// import config json file
+import { config } from '../config.js';
+import SerialCommunication from './Components/SerialCommunication.js';
+import ICommunicationMethod from './Components/ICommunicationMethod.js';
+import BLECommunication from './Components/BLECommunication.js';
+import SpeechToText from './Components/SpeechToText.js';
+import TextToSpeech from './Components/TextToSpeech.js';
+
+let communicationMethod = null;
+let speechToText = null;
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocketServer({ server });
 
 
-app.use(cors());
-app.use(express.json());
+// 1. setup speech to text
+speechToText = new SpeechToText(callBackSpeechToText);
 
-
-// Example: broadcast to all clients
-function broadcastUpdate(data) {
- //   const data = JSON.stringify({ variable: textIn, messageINComplete: complete,  messageOut: textOut });
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(data);
-        }
+function callBackSpeechToText(msg) {
+  let complete = false;
+  if (msg.confirmedText) {
+    console.log('stt:', msg.confirmedText);
+    complete = true;
+    msg.speech = msg.confirmedText
+    // send message to LLM API
+    LLM_API.send(msg.confirmedText, "user").then((response) => {
+      LLMresponseHandler(response);
     });
-}
-
-// Example: update messages and broadcast
-function updateMessages(newIn, newInComplete, newOut) {
-    // create object literal to store three variables 
-    // and send to all clients
-    const data = JSON.stringify({ messageIn: newIn, messageInComplete: newInComplete,  messageOut: newOut });
-    broadcastUpdate(data);
-}
-
-
-// Additional routes can be defined here
-
-app.get('/api/random', (req, res) => {
-    const randomNumber = Math.floor(Math.random() * 100); // Generate a random number
-    res.json({ messageIN: `Random number: ${randomNumber}`, messageOut: ` test` });
-});
-
-// Example: update messages every 5 seconds for demo
-/*
-setInterval(() => {
-    updateMessages(
-        `Random IN: ${Math.floor(Math.random() * 100)}`,
-        `Random OUT: ${Math.floor(Math.random() * 100)}`
-    );
-}, 5000);
-*/
-server.listen(PORT, () => {
-    console.log(`Server and WebSocket running on port ${PORT}`);
-});
-// python start and communication 
-// Start the Python process
-const py = spawn('python3', ['script.py'], {
-    cwd: path.join(__dirname, '../python') // Set working directory to 'python'
-});
-  
-  // Listen for any message from Python
-py.stdout.on('data', (data) => {
-    data.toString().split('\n').filter(Boolean).forEach(line => {
-        try {
-            const msg = JSON.parse(line); // Attempt to parse JSON
-            let complete = false;
-            if (msg.confirmedText) {
-                console.log('Python speech to text:', msg.confirmedText);
-                complete = true;
-                msg.speech = msg.confirmedText
-            } else if (msg.interimResult) {
-                console.log('Python speech to text:', msg.interimResult);
-                complete = false;
-                msg.speech = msg.interimResult
-            } else {
-                msg.speech = "";
-            }
-
-            if (msg.synth) {
-                console.log('Python synth speech:', msg.synth);
-            } else {
-                msg.synth = "";
-            }
-
-            updateMessages(msg.speech, complete, msg.synth);
-        } catch (e) {
-            // Log and ignore non-JSON messages
-            console.error('Failed to parse Python message (non-JSON):', line);
-        }
-    });
-});
-  
-  // Function to send a message and wait for a reply (optional, for call-response)
-  function sendMessage(message) {
-    return new Promise((resolve, reject) => {
-      const onData = (data) => {
-        data.toString().split('\n').filter(Boolean).forEach(line => {
-          try {
-            const response = JSON.parse(line);
-            if (response.reply) {
-              py.stdout.off('data', onData);
-              resolve(response);
-            }
-          } catch (e) {
-            reject(e);
-          }
-        });
-      };
-      py.stdout.on('data', onData);
-      py.stdin.write(JSON.stringify({ msg: message }) + '\n');
-    });
+  } else if (msg.interimResult) {
+    console.log('interim stt:', msg.interimResult);
+    complete = false;
+    msg.speech = msg.interimResult
+  } else {
+    msg.speech = "";
   }
-  
-  // Optional: Handle Python errors and exit
-  py.stderr.on('data', (data) => {
-    console.error('Python:', data.toString());
+  try {
+    updateFrontend(msg.speech, complete, "");
+  } catch (e) {
+    console.error('Error speech to text response', msg, e);
+  }
+}
+
+
+// 2. setup comunication method for arduino
+
+function comCallback(message) {
+  console.log("com callback");
+  console.log(message);
+  // send message to LLM API
+  // LLM_API.send(message, "user").then((response) => {
+  //   LLMresponseHandler(response);
+  // });
+}
+
+if (config.communicationMethod == "BLE") {
+  communicationMethod = new BLECommunication(comCallback);
+} else if (config.communicationMethod == "Serial") {
+  communicationMethod = new SerialCommunication(comCallback);
+} else {
+  communicationMethod = new ICommunicationMethod(comCallback);
+}
+
+// 3. Start HTTP/WebSocket server
+
+app.use(cors()); // Configure middleware for Express.js server.
+app.use(express.json()); // Configure middleware for Express.js server.
+
+server.listen(PORT, () => {
+  console.log(`Server and WebSocket running on port ${PORT}`);
+});
+
+// handle commands for debuging ect.
+wss.on('connection', (ws, req) => {
+  const ip = req.socket.remoteAddress;
+  if (ip !== '127.0.0.1' && ip !== '::1' && ip !== '::ffff:127.0.0.1') {
+    ws.close();
+    console.log(`Rejected connection from non-local address: ${ip}`);
+    return;
+  }
+  console.log(`Accepted WebSocket connection from ${ip}`);
+
+  ws.on('message', (message) => {
+    try {
+      // Try to parse as JSON, or treat as plain text
+      let cmd;
+      try {
+        cmd = JSON.parse(message);
+      } catch {
+        cmd = { text: message.toString().trim() };
+      }
+      console.log('Received command via WebSocket:', cmd);
+
+      // Example: handle a "pause" command
+      if (cmd.command === 'pause') {
+        speechToText.pause();
+        ws.send('Sent pause command to Python');
+      } else if (cmd.command === 'resume') {
+        speechToText.resume();
+        ws.send('Sent resume command to Python');
+      } else if (cmd.text) {
+        LLM_API.send(cmd.text, "user").then((response) => {
+          LLMresponseHandler(response);
+        });
+        ws.send('Sent message to LLM API');
+      } else {
+        ws.send('Unknown command');
+      }
+    } catch (err) {
+      ws.send('Error handling command: ' + err.message);
+    }
   });
-  py.on('close', (code) => {
-    console.log(`Python process exited with code ${code}`);
+});
+
+
+function broadcastUpdate(data) {
+  //   const data = JSON.stringify({ variable: textIn, messageINComplete: complete,  messageOut: textOut });
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
   });
+}
+
+function updateFrontend(newIn, newInComplete, newOut) {
+  const dataObj = {};
+  if (typeof newIn !== 'undefined') dataObj.messageIn = newIn;
+  if (typeof newInComplete !== 'undefined') dataObj.messageInComplete = newInComplete;
+  if (typeof newOut !== 'undefined') dataObj.messageOut = newOut;
+  const data = JSON.stringify(dataObj);
+  broadcastUpdate(data);
+}
+
+function frontEndFunction(functionName, args) {
+  const dataObj = {};
+  if (typeof functionName !== 'undefined') dataObj.functionName = functionName;
+  if (typeof args !== 'undefined') dataObj.args = args;
+  const data = JSON.stringify(dataObj);
+  broadcastUpdate(data);
+}
+
+
+// 4. setup LLM API
+
+let LLM_API = new ChatGPTAPI(config, communicationMethod);
+
+// test the LLM API
+/*
+LLM_API.send("Tell me the time", "user").then((response) => {
+  LLMresponseHandler(response);
+})
+*/
+
+function LLMresponseHandler(returnObject) {
+  // TODO: protect against endless recursion
+  console.log(returnObject);
+  if (returnObject.role == "assistant") {
+    // convert the returnObject.message to string to avoid the class having access to the returnObject
+    let message = returnObject.message.toString();
+    try {
+      updateFrontend("", "", message);
+      textToSpeech.say(message, 0);
+      // SpeechSynthesiser.say(message, voice);
+    } catch (error) {
+      console.log(error);
+    }
+  } else if (returnObject.role == "function") {
+    // call the function with the arguments
+    const functionName = returnObject.message;
+    const args = returnObject.arguments;
+    frontEndFunction(functionName, args);
+  }
+  if (returnObject.promise != null) {
+    console.log("there is a promise")
+    // there is another nested promise 
+    returnObject.promise.then((returnObject) => {
+      LLMresponseHandler(returnObject)
+    })
+  } else {
+    endExchange()
+  }
+}
+
+function endExchange() {
+}
+
+// 5. setup Text to Speech
+
+let textToSpeech = new TextToSpeech(callBackTextToSpeech);
+
+function callBackTextToSpeech(msg) {
+  if (msg.tts == "started" || msg.tts == "resumed") {
+    speechToText.pause();
+  } else if (msg.tts == "stopped" || msg.tts == "paused") {
+     speechToText.resume();
+  } else {
+    speechToText.resume();
+  }
+}
+
+
+// functions 
+

@@ -76,7 +76,9 @@ npm install
 # Create and activate a Python virtual environment and install packages
 python3 -m venv python/venv
 source python/venv/bin/activate
-pip3 install pyaudio vosk sounddevice
+pip3 install pyaudio vosk sounddevice numpy 
+pip3 install --no-deps -r requirements.txt
+pip3 install onnxruntime
 
 
 ### 6. **Start the Application**
@@ -90,4 +92,22 @@ pip3 install pyaudio vosk sounddevice
 ```bash
 chmod +x runPi.sh
 ./runPi.sh
+```
+
+
+###  **Debuging with terminal 
+
+- Install wscat for terminal websocket connections
+```bash
+  npm install -g wscat
+```
+- Open a websocket connection
+```bash
+  wscat -c ws://localhost:3000
+```
+
+- Type a command to pause speech detection, or send text directly to the LLM
+```bash
+{"command":"pause"}
+{"command":"sendMessage","message":"Hello from the terminal!"}
 ```

@@ -1,6 +1,7 @@
 {
   "name": "headless-raspberry-pi-project",
   "version": "1.0.0",
+  "type": "module",
   "description": "A headless Raspberry Pi project with a web app kiosk front end and a Node.js backend.",
   "main": "server.js",
   "scripts": {
