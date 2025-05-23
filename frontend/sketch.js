@@ -15,7 +15,8 @@ function setup() {
 
 function draw() {
     // Display the message on the canvas
-    background(255,0,0); // Clear the canvas
+    background(0); // Clear the canvas
+    simpleTruchetPatern();
     push()
     stroke(255);
     noFill();
@@ -25,19 +26,27 @@ function draw() {
     fill(0);
     textSize(36);
     textAlign(CENTER, CENTER);
-    /*
-    if (window.userComplete) {
-        fill(255,2);
-    } else {
-        fill(150, 150, 150);
-    }
-    //
-    text(window.user, width / 2, height / 2 - 50)
-    fill(255);
-    text(window.assistant, width / 2, height / 2 + 50)
-    */
 }
 
+function simpleTruchetPatern() {
+    noFill();
+    let spacing = 30
+    stroke(255,255,255,30);
+    strokeWeight(2);
+    for (let x = 0; x < width; x += spacing) {
+        for (let y = 0; y < height; y += spacing) {
+            randomSeed(x*y);
+            let r = random(1);
+            if (r >0.5) {
+                arc(x+spacing, y, spacing, spacing, HALF_PI, PI);
+                arc(x, y+spacing, spacing, spacing, -HALF_PI, 0);
+            } else {
+                arc(x+spacing, y+spacing, spacing, spacing, PI, -HALF_PI);
+                arc(x, y, spacing, spacing, 0, HALF_PI);
+            }
+        }
+    }
+}
 
 function backgroundFill() {
     // diagonal limes at 45 degrees   

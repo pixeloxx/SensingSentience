@@ -10,7 +10,7 @@ const config = {
     url: "https://api.openai.com/v1/chat/completions", // gpt-4 is "https://api.openai.com/v1/completions";
   },
 
-  communicationMethod: "blank", //Serial or "BLE"
+  communicationMethod: "Serial", //Serial or "BLE"
   //  serviceUuid: "19b10000-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
 
 
@@ -22,7 +22,7 @@ const config = {
         //uuid: "19b10004-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
         commType: "write",
         dataType: "number",
-        description: "0 is off , 1 is red, 2 is blue, 3 is green",
+        description: "0 is off , 1 is on",
       },
       set_motor_speed: {
         //uuid: "19b10001-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase

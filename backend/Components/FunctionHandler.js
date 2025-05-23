@@ -138,8 +138,12 @@ class FunctionHandler {
         functionReturnPromise = comMethod.call(this.comObject, functionArguments);
       } else {
         // Standard function
-        const funcDef = allFunctionLists[functionName];
-        functionArguments.uuid = funcDef.uuid;
+        const funcDef = this.allFunctions.find(f => f.name === functionName);
+        /// ignore uuid if not defined
+        if (funcDef.uuid != undefined) {
+            functionArguments.uuid = funcDef.uuid;
+        }
+        
         functionArguments.dataType = funcDef.dataType;
         functionArguments.name = functionName;
         console.log("arguments:", functionArguments);
@@ -168,8 +172,8 @@ class FunctionHandler {
         console.log(formattedValue);
         console.log(functionName);
 
-        // Send the result back to ChatGPT
-        returnObject.promise = this.send(formattedValue, "function", functionName);
+        // TODO Send the result back to ChatGPT
+       // returnObject.promise = this.send(formattedValue, "function", functionName);
 
         if (functionReturnObject.description === "Error") {
           returnObject.message = "function_call with error: " + functionReturnObject.value;

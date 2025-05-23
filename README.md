@@ -135,3 +135,6 @@ chmod +x runPi.sh
 
 ###  AutoStart
 
+Add the .desktop file to home/pi/.config/autostart/
+
+
