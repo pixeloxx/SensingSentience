@@ -93,10 +93,18 @@ else
 
   echo "Launching Chromium in kiosk mode..."
   # Wait for X to be available
-  while ! pgrep -x "Xorg" > /dev/null; do
-    sleep 2
-  done
-  sleep 5  # Extra wait for desktop to finish loading
+# Wait for X server (Xorg, X, or Xwayland) with timeout
+timeout=60
+elapsed=0
+while ! (pgrep -x "Xorg" > /dev/null || pgrep -x "X" > /dev/null || pgrep -x "Xwayland" > /dev/null); do
+  sleep 2
+  elapsed=$((elapsed+2))
+  if [ $elapsed -ge $timeout ]; then
+    echo "X server did not start after $timeout seconds. Continuing anyway."
+    break
+  fi
+done
+sleep 5  # Extra wait for desktop to finish loading
 
 export DISPLAY=:0
 export XAUTHORITY=$(find /home/*/.Xauthority | head -1)
