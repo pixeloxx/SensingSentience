@@ -42,8 +42,13 @@ cleanup() {
   fi
 
   # Kill any process using port 3000 or 5173
-  lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
-  lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
+    lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
+    lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
+    sleep 2
+    # Try again in case something respawned
+    lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
+    lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
+    sleep 1
 
   # Optionally kill Chromium if running in kiosk mode
   pkill -f chromium-browser 2>/dev/null
