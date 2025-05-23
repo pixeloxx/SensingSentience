@@ -62,10 +62,12 @@ until curl -s http://localhost:5173 > /dev/null; do
 done
 
 # Launch Chromium in kiosk mode on the attached display
+  sleep 10
 if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Launching default browser on macOS..." &
   open http://localhost:5173 &
 else
+
   echo "Launching Chromium in kiosk mode..."
   DISPLAY=:0 chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 &
 fi
