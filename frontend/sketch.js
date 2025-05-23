@@ -15,11 +15,11 @@ function setup() {
 
 function draw() {
     // Display the message on the canvas
-    background(0); // Clear the canvas
+    background(255,0,0); // Clear the canvas
     push()
     stroke(255);
     noFill();
-    circle(width / 2 +2, height / 2 +2, max(width, height));
+    circle((width / 2), (height / 2), max(width, height)+5);
     pop();
    // backgroundFill();
     fill(0);

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -m
 # Activate Python virtual environment
 source "$(dirname "$0")/python/venv/bin/activate"
 
@@ -10,9 +10,11 @@ cleanup() {
   # Kill backend/frontend (npm) and python scripts
   if [[ -n "$NPM_PID" ]]; then
     kill "$NPM_PID" 2>/dev/null
+    wait "$NPM_PID" 2>/dev/null
   fi
   if [[ -n "$PY_PID" ]]; then
     kill "$PY_PID" 2>/dev/null
+    wait "$PY_PID" 2>/dev/null
   fi
 
   # Kill any process using port 3000 or 5173
@@ -66,3 +68,4 @@ fi
 
 # Wait for background jobs (so trap works)
 wait
+echo "All processes exited. Goodbye!"
