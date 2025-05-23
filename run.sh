@@ -1,7 +1,11 @@
 #!/bin/bash
 set -m
+
+# Change to the directory where this script is located
+cd "$(dirname "$0")"
+
 # Activate Python virtual environment
-source "$(dirname "$0")/python/venv/bin/activate"
+source python/venv/bin/activate
 
 # Function to clean up on exit
 cleanup() {
