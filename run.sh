@@ -1,7 +1,6 @@
 #!/bin/bash
 set -m
 
-
 # Set log file location
 LOG_FILE="$(dirname "$0")/logs/kiosk.log"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -15,11 +14,6 @@ log() {
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 log "Starting Sentient Senses application"
-
-# Rest of your script continues...
-
-export DISPLAY=:0
-export XAUTHORITY=$(find /home/*/.Xauthority | head -1)
 
 # Change to the directory where this script is located
 cd "$(dirname "$0")"
@@ -58,7 +52,6 @@ cleanup() {
     kill "$CHROMIUM_PID" 2>/dev/null
     wait "$CHROMIUM_PID" 2>/dev/null
   fi
-
   echo "Cleanup complete."
 }
 
@@ -99,6 +92,16 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
 
   echo "Launching Chromium in kiosk mode..."
+  # Wait for X to be available
+  while ! pgrep -x "Xorg" > /dev/null; do
+    sleep 2
+  done
+  sleep 5  # Extra wait for desktop to finish loading
+
+export DISPLAY=:0
+export XAUTHORITY=$(find /home/*/.Xauthority | head -1)
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
+
  DISPLAY=:0 chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 &
 CHROMIUM_PID=$!
 fi
