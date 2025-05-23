@@ -1,6 +1,23 @@
 #!/bin/bash
 set -m
 
+
+# Set log file location
+LOG_FILE="$(dirname "$0")/logs/kiosk.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+
+# Function for logging
+log() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Redirect all stdout and stderr to log file while still showing on console
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+log "Starting Sentient Senses application"
+
+# Rest of your script continues...
+
 export DISPLAY=:0
 export XAUTHORITY=$(find /home/*/.Xauthority | head -1)
 
