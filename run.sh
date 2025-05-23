@@ -47,11 +47,8 @@ cleanup() {
   # Optionally kill Chromium if running in kiosk mode
   pkill -f chromium-browser 2>/dev/null
   pkill -f "Google Chrome" 2>/dev/null
+  pkill -o chromium
 
-  if [[ -n "$CHROMIUM_PID" ]]; then
-    kill "$CHROMIUM_PID" 2>/dev/null
-    wait "$CHROMIUM_PID" 2>/dev/null
-  fi
   echo "Cleanup complete."
 }
 
@@ -85,33 +82,13 @@ until curl -s http://localhost:5173 > /dev/null; do
 done
 
 # Launch Chromium in kiosk mode on the attached display
-  sleep 10
 if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Launching default browser on macOS..." &
   open http://localhost:5173 &
 else
-
   echo "Launching Chromium in kiosk mode..."
-  # Wait for X to be available
-# Wait for X server (Xorg, X, or Xwayland) with timeout
-timeout=60
-elapsed=0
-while ! (pgrep -x "Xorg" > /dev/null || pgrep -x "X" > /dev/null || pgrep -x "Xwayland" > /dev/null); do
-  sleep 2
-  elapsed=$((elapsed+2))
-  if [ $elapsed -ge $timeout ]; then
-    echo "X server did not start after $timeout seconds. Continuing anyway."
-    break
-  fi
-done
-sleep 5  # Extra wait for desktop to finish loading
-
-export DISPLAY=:0
-export XAUTHORITY=$(find /home/*/.Xauthority | head -1)
-export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
-
- DISPLAY=:0 chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 &
-CHROMIUM_PID=$!
+  sleep 5  # Extra wait for desktop to finish loading
+  chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173
 fi
 
 # Wait for background jobs (so trap works)
