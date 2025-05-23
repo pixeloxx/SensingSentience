@@ -25,6 +25,13 @@ source python/venv/bin/activate
 cleanup() {
   echo "Shutting down servers and cleaning up..."
 
+  # Kill any process using port 3000 or 5173
+  echo "Killing processes on ports 3000 and 5173..."
+  lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
+  lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
+  sleep 2
+
+
   # Kill backend/frontend (npm) and python scripts
   if [[ -n "$NPM_PID" ]]; then
     kill "$NPM_PID" 2>/dev/null
@@ -35,36 +42,32 @@ cleanup() {
     wait "$PY_PID" 2>/dev/null
   fi
 
-  # Kill any process using port 3000 or 5173
-    lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
-    lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
-    sleep 2
-    # Try again in case something respawned
-    lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
-    lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
-    sleep 1
-
-  # Optionally kill Chromium if running in kiosk mode
-  pkill -f chromium-browser 2>/dev/null
-  pkill -f "Google Chrome" 2>/dev/null
-  pkill -o chromium
-
+  # Try to kill Chromium by PID
   if [[ -n "$CHROMIUM_PID" ]]; then
     kill "$CHROMIUM_PID" 2>/dev/null
-    wait "$CHROMIUM_PID" 2>/dev/null
+    sleep 2
+    if ps -p "$CHROMIUM_PID" > /dev/null; then
+      kill -9 "$CHROMIUM_PID" 2>/dev/null
+    fi
   fi
+
+  # Fallback: kill any chromium-browser processes
+  pkill -f chromium-browser 2>/dev/null
+  pkill -f "Google Chrome" 2>/dev/null
+  pkill -o chromium 2>/dev/null
+
+  # Kill any process using port 3000 or 5173
+  lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
+  lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
 
   echo "Cleanup complete."
 }
 
 # Trap EXIT and INT (Ctrl+C)
-trap cleanup EXIT INT
+trap cleanup EXIT SIGINT SIGTERM
 
-# Kill any process using port 3000 or 5173
-echo "Killing processes on ports 3000 and 5173..."
-lsof -ti tcp:3000 | xargs kill -9 2>/dev/null
-lsof -ti tcp:5173 | xargs kill -9 2>/dev/null
-sleep 2
+# Run cleanup at the start to clear old processes
+cleanup
 
 if lsof -ti tcp:3000 >/dev/null || lsof -ti tcp:5173 >/dev/null; then
   echo "Ports 3000 or 5173 are still in use. Exiting..."
