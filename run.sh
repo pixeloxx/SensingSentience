@@ -1,6 +1,9 @@
 #!/bin/bash
 set -m
 
+export DISPLAY=:0
+export XAUTHORITY=$(find /home/*/.Xauthority | head -1)
+
 # Change to the directory where this script is located
 cd "$(dirname "$0")"
 
@@ -28,6 +31,11 @@ cleanup() {
   # Optionally kill Chromium if running in kiosk mode
   pkill -f chromium-browser 2>/dev/null
   pkill -f "Google Chrome" 2>/dev/null
+
+  if [[ -n "$CHROMIUM_PID" ]]; then
+    kill "$CHROMIUM_PID" 2>/dev/null
+    wait "$CHROMIUM_PID" 2>/dev/null
+  fi
 
   echo "Cleanup complete."
 }
@@ -69,7 +77,8 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
 
   echo "Launching Chromium in kiosk mode..."
-  DISPLAY=:0 chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 &
+ DISPLAY=:0 chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 &
+CHROMIUM_PID=$!
 fi
 
 # Wait for background jobs (so trap works)
