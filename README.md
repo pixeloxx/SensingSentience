@@ -132,3 +132,6 @@ chmod +x runPi.sh
 {"command":"pause"}
 {"command":"sendMessage","message":"Hello from the terminal!"}
 ```
+
+###  AutoStart
+

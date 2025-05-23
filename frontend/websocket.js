@@ -1,11 +1,30 @@
-window.textIn = '';
-window.textOut = '';
-window.newInComplete = false;
+window.user = '';
+window.assistant = '';
+window.userComplete = false;
 
 // run connectToWebSocket on page load
 window.addEventListener('load', () => {
     connectToWebSocket();
 });
+
+function updateSubtitle() {
+    // upate div class user and assistant
+    const userDiv = document.querySelector('.user');
+    const assistantDiv = document.querySelector('.assistant');
+    if (userDiv) {
+        userDiv.innerHTML = window.user;
+       console.log('window.userComplete:', window.userComplete);
+        if (window.userComplete) {
+            userDiv.classList.add('complete');
+        } else {
+            userDiv.classList.remove('complete');
+        }
+    }
+    if (assistantDiv) {
+        assistantDiv.innerHTML = window.assistant;
+    }
+
+}
 function connectToWebSocket() {
     // if no connection, try again after 2 seconds
     ws = new WebSocket('ws://localhost:3000');
@@ -17,13 +36,17 @@ function connectToWebSocket() {
             console.log(data);
             if (data.backEnd) {
                 if (data.backEnd.messageIn) {
-                    window.textIn = data.backEnd.messageIn;
+                    window.user = data.backEnd.messageIn;
+                    updateSubtitle();
                 }
                 if (data.backEnd.messageOut) {
-                    window.textOut = data.backEnd.messageOut;
+                    window.assistant = data.backEnd.messageOut;
+                    updateSubtitle();
                 }
-                if (data.backEnd.messageInComplete) {
-                    window.newInComplete = data.backEnd.messageInComplete;
+                if (typeof data.backEnd.messageInComplete === "boolean") { 
+                    console.log('messageInComplete:', data.backEnd.messageInComplete);
+                    window.userComplete = data.backEnd.messageInComplete;
+                    updateSubtitle();
                 }
                 if (data.backEnd.functionName) {
                     let returnValue = { frontEnd: { name: data.backEnd.functionName, value: undefined } };
@@ -74,4 +97,7 @@ function connectToWebSocket() {
         console.error("WebSocket error:", error);
         ws.close(); // Close the connection to trigger retry
     };
+
+
+
 };

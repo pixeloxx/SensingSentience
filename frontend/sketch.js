@@ -25,15 +25,17 @@ function draw() {
     fill(0);
     textSize(36);
     textAlign(CENTER, CENTER);
-    if (window.newInComplete) {
+    /*
+    if (window.userComplete) {
         fill(255,2);
     } else {
         fill(150, 150, 150);
     }
     //
-    text(window.textIn, width / 2, height / 2 - 50)
+    text(window.user, width / 2, height / 2 - 50)
     fill(255);
-    text(window.textOut, width / 2, height / 2 + 50)
+    text(window.assistant, width / 2, height / 2 + 50)
+    */
 }
 
 
