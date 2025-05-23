@@ -49,6 +49,14 @@ An art project running application on a headless Raspberry Pi, utilizing a Node.
   ```bash
   ssh <username>@<devicename>.local
   ```
+  sudo raspi-config
+  
+In config select "Interfacing Options" > "Serial". 
+
+"Would you like a login shell to be accessible over serial?" > NO
+"Would you like the serial port hardware to be enabled?" > Yes
+
+
 
 ### 3. **Install Dependencies**
 - Update the system and install Node.js, npm, and Chromium etc:
@@ -73,29 +81,42 @@ cd SentientSenses
 npm install
 ```
 
-# Create and activate a Python virtual environment and install packages
+### 6 Create and activate a Python virtual environment and install packages
+
 python3 -m venv python/venv
 source python/venv/bin/activate
-pip3 install pyaudio vosk sounddevice numpy 
+pip3 install pyaudio vosk sounddevice numpy piper
 pip3 install --no-deps -r requirements.txt
 pip3 install onnxruntime
 
 
-### 6. **Start the Application**
+### 7. **Start the Application**
+
+- Make sure python virtual environment is started:
+
+```bash
+  source python/venv/bin/activate
+```
 - To start both backend and frontend together:
 ```bash
   npm start
 ```
+or for development:
+
+```bash
+  npm run dev
+```
+
 - The backend will run on port 3000, and the frontend (Vite dev server) on port 5173.
 
-### 7. **Set Up Kiosk Mode and autostart
+### 8. **Set Up Kiosk Mode and autostart**
+
 ```bash
 chmod +x runPi.sh
 ./runPi.sh
 ```
 
-
-###  **Debuging with terminal 
+###  Debuging with terminal 
 
 - Install wscat for terminal websocket connections
 ```bash

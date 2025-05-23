@@ -1,16 +1,15 @@
-import fetch from 'node-fetch';
-import 'dotenv/config';
 
 // TODO: unffinished stub
 
 class FunctionHandler {
   constructor(config, comObject) {
-  
+
     // Configuration and communication object
     this.config = config;
     this.comObject = comObject;
 
     // Function lists
+    this.ignoreSerial = false;
     this.frontEndFunctions = [];
     this.allFunctions = [
       // built-in communication functions
@@ -46,7 +45,6 @@ class FunctionHandler {
     this.formatAndAddFunctions(config.functions.actions, this.allFunctions);
     this.formatAndAddFunctions(config.functions.notifications, this.allFunctions);
     this.formatAndAddFunctions(config.functions.frontEnd, this.allFunctions);
-
     this.formatAndAddFunctions(config.functions.frontEnd, this.frontEndFunctions);
 
     // Debug: print function lists
@@ -83,5 +81,115 @@ class FunctionHandler {
     };
     return newFunction;
   }
+
+  getAllFunctions() {
+    return this.allFunctions;
   }
+  /**
+   * Attempt to call a function based on LLM response
+   */
+  /**
+    * Handle function calls from the OpenAI API response.
+    * Returns a Promise that resolves to a returnObject.
+    */
+
+  async handleCall(message, returnObject) {
+
+    const functionName = message.function_call.name;
+    console.log("function_call with function name:", functionName);
+
+    let functionArguments = {};
+    try {
+      functionArguments = JSON.parse(message.function_call.arguments);
+    } catch (e) {
+      returnObject.message = "Error: Invalid function arguments";
+      returnObject.role = "error";
+      return returnObject;
+    }
+
+    returnObject.arguments = functionArguments
+    //functionArguments.defaultValue = "nothing";
+    console.log("arguments:", functionArguments);
+
+    // Check if function exists in communication method or local functions
+    const comMethod = this.comObject.getMethod(functionName);
+    let functionReturnPromise;
+    // Handle communication method or local function
+    if (comMethod || this.allFunctions.some(obj => obj.name === functionName)) {
+      console.log(functionName, "exists in functionList");
+
+      // Ignore serial connection if requested
+      /*
+      if (this.ignoreSerial && functionName === "connect") {
+        console.log("Ignoring Serial connection attempt.");
+        returnObject.message = "Serial connection ignored as requested.";
+        returnObject.role = "function";
+        return returnObject;
+      }
+*/
+      // Call the appropriate method
+      if (this.frontEndFunctions.some(obj => obj.name === functionName)) {
+        console.log("front end function with name:", functionName);
+        // frontend function
+        returnObject.message = functionName;
+        returnObject.role = "function";
+        return returnObject;
+      } else if (comMethod) {
+        functionReturnPromise = comMethod.call(this.comObject, functionArguments);
+      } else {
+        // Standard function
+        const funcDef = allFunctionLists[functionName];
+        functionArguments.uuid = funcDef.uuid;
+        functionArguments.dataType = funcDef.dataType;
+        functionArguments.name = functionName;
+        console.log("arguments:", functionArguments);
+
+        if (funcDef.commType === "readWrite" || funcDef.commType === "write") {
+          const method = this.comObject.getMethod("write");
+          functionReturnPromise = method.call(this.comObject, functionArguments);
+        } else if (funcDef.commType === "writeRaw") {
+          // Write raw data to output method
+          const method = this.comObject.getMethod("writeRaw");
+          const newArgument = String(functionArguments.value);
+          functionReturnPromise = method.call(this.comObject, newArgument);
+        } else {
+          // Read only
+          const method = this.comObject.getMethod("read");
+          functionReturnPromise = method.call(this.comObject, functionArguments);
+        }
+      }
+      // Wait for the function to complete and handle the result
+      try {
+        const functionReturnObject = await functionReturnPromise;
+        let formattedValue = JSON.stringify({
+          [functionReturnObject.description]: functionReturnObject.value
+        });
+        console.log(functionReturnObject);
+        console.log(formattedValue);
+        console.log(functionName);
+
+        // Send the result back to ChatGPT
+        returnObject.promise = this.send(formattedValue, "function", functionName);
+
+        if (functionReturnObject.description === "Error") {
+          returnObject.message = "function_call with error: " + functionReturnObject.value;
+          returnObject.role = "error";
+        } else {
+          returnObject.message = "function_call " + functionName;
+          returnObject.role = "function";
+        }
+        return returnObject;
+      } catch (err) {
+        returnObject.message = "Error in function execution: " + err.message;
+        returnObject.role = "error";
+        return returnObject;
+      }
+    } else {
+      // Function does not exist
+      returnObject.message = "Error: function does not exist";
+      returnObject.role = "error";
+      return returnObject;
+    }
+  }
+}
 export default FunctionHandler;

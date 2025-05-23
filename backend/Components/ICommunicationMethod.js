@@ -1,6 +1,7 @@
 class ICommunicationMethod {
     constructor(callback) {
         this.callback = callback;
+        this.connected = false;
     }
     connect() {
        console.log("Method 'connect()' must be implemented.");

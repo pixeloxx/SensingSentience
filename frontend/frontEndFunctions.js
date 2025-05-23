@@ -1,6 +1,8 @@
+// these are functions that should be available to the backend
+
 window.frontendFunctions = {
     // custom functions after this line
-    start_party: function (command) {
+    start_party: function(command) {
         console.log("Starting party mode");
         function createGlitter() {
             const glitter = document.createElement('div');
@@ -24,10 +26,19 @@ window.frontendFunctions = {
                 glitter.remove();
             }, 5000);
         }
-        function getRandomColor() {
+          function getRandomColor() {
             const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink', 'orange'];
             return colors[Math.floor(Math.random() * colors.length)];
         }
-        setInterval(createGlitter, 10);
+
+        let partyEffect = setInterval(createGlitter, 10);
+                // stop after 10 seconds
+            setTimeout(() => {
+                clearInterval(partyEffect);
+            }, 10000);
+    },
+    get_value: function(command) {
+        console.log("Starting party mode");
+        return(Math.random() * 100);
     }
 }

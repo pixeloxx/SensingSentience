@@ -45,6 +45,10 @@ const config = {
         dataType: "boolean",
         description: "0 is off, 1 is on. Creates a party effect in the GUI",
       },
+      get_value: {
+        dataType: "number",
+        description: "get a random value from front end",
+      }
     },
   },
 

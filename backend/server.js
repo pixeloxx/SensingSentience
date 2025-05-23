@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-
 import http from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import ChatGPTAPI from './Components/ChatGPTAPI.js';
@@ -8,7 +7,8 @@ import ChatGPTAPI from './Components/ChatGPTAPI.js';
 import { config } from '../config.js';
 import SerialCommunication from './Components/SerialCommunication.js';
 import ICommunicationMethod from './Components/ICommunicationMethod.js';
-import BLECommunication from './Components/BLECommunication.js';
+import FunctionHandler from './Components/FunctionHandler.js';
+//import BLECommunication from './Components/BLECommunication.js';
 import SpeechToText from './Components/SpeechToText.js';
 import TextToSpeech from './Components/TextToSpeech.js';
 
@@ -63,11 +63,10 @@ function comCallback(message) {
 }
 
 // test
-
 // let serialTest = new SerialCommunication(comCallback);
 
 if (config.communicationMethod == "BLE") {
-  communicationMethod = new BLECommunication(comCallback);
+  console.log
 } else if (config.communicationMethod == "Serial") {
   communicationMethod = new SerialCommunication(comCallback);
 } else {
@@ -117,7 +116,7 @@ wss.on('connection', (ws, req) => {
         });
         ws.send('Sent message to LLM API');
       } else {
-        ws.send('Unknown command');
+        // ws.send('Unknown command');
       }
     } catch (err) {
       ws.send('Error handling command: ' + err.message);
@@ -137,25 +136,33 @@ function broadcastUpdate(data) {
 
 function updateFrontend(newIn, newInComplete, newOut) {
   const dataObj = {};
-  if (typeof newIn !== 'undefined') dataObj.messageIn = newIn;
-  if (typeof newInComplete !== 'undefined') dataObj.messageInComplete = newInComplete;
-  if (typeof newOut !== 'undefined') dataObj.messageOut = newOut;
+  dataObj.backEnd = {};
+  if (typeof newIn !== 'undefined') dataObj.backEnd.messageIn = newIn;
+  if (typeof newInComplete !== 'undefined') dataObj.backEnd.messageInComplete = newInComplete;
+  if (typeof newOut !== 'undefined') dataObj.backEnd.messageOut = newOut;
   const data = JSON.stringify(dataObj);
+  console.log(data);
   broadcastUpdate(data);
 }
 
 function frontEndFunction(functionName, args) {
   const dataObj = {};
-  if (typeof functionName !== 'undefined') dataObj.functionName = functionName;
-  if (typeof args !== 'undefined') dataObj.args = args;
+  dataObj.backEnd = {};
+  if (typeof functionName !== 'undefined') dataObj.backEnd.functionName = functionName;
+  if (typeof args !== 'undefined') dataObj.backEnd.args = args;
   const data = JSON.stringify(dataObj);
   broadcastUpdate(data);
 }
 
 
+// setup function handler
+
+const functionHandler = new FunctionHandler(config, communicationMethod);
+
+
 // 4. setup LLM API
 
-let LLM_API = new ChatGPTAPI(config, communicationMethod);
+let LLM_API = new ChatGPTAPI(config, functionHandler);
 
 // test the LLM API
 /*
