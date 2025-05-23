@@ -49,6 +49,11 @@ cleanup() {
   pkill -f "Google Chrome" 2>/dev/null
   pkill -o chromium
 
+  if [[ -n "$CHROMIUM_PID" ]]; then
+    kill "$CHROMIUM_PID" 2>/dev/null
+    wait "$CHROMIUM_PID" 2>/dev/null
+  fi
+
   echo "Cleanup complete."
 }
 
@@ -86,9 +91,10 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "Launching default browser on macOS..." &
   open http://localhost:5173 &
 else
-  echo "Launching Chromium in kiosk mode..."
+echo "Launching Chromium in kiosk mode..."
   sleep 5  # Extra wait for desktop to finish loading
-  chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173
+ chromium-browser --no-sandbox --kiosk --disable-infobars --disable-restore-session-state http://localhost:5173 &
+CHROMIUM_PID=$!
 fi
 
 # Wait for background jobs (so trap works)
