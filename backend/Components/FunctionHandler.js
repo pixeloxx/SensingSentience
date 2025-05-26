@@ -69,6 +69,8 @@ class FunctionHandler {
     let newFunction = {
       name: key,
       description: list[key]?.description || "",
+      // if commtype is define, add to objection
+      commType: list[key]?.commType || "read",
       parameters: {
         type: "object",
         properties: {
@@ -100,6 +102,7 @@ class FunctionHandler {
 
     let functionArguments = {};
     try {
+      // get matching function from list
       functionArguments = JSON.parse(message.function_call.arguments);
     } catch (e) {
       returnObject.message = "Error: Invalid function arguments";
@@ -107,7 +110,7 @@ class FunctionHandler {
       return returnObject;
     }
 
-    returnObject.arguments = functionArguments
+    returnObject.arguments = functionArguments;
     //functionArguments.defaultValue = "nothing";
     console.log("arguments:", functionArguments);
 
@@ -135,14 +138,17 @@ class FunctionHandler {
         returnObject.role = "function";
         return returnObject;
       } else if (comMethod) {
+        console.log("function call with basic comm method ");
         functionReturnPromise = comMethod.call(this.comObject, functionArguments);
       } else {
         // Standard function
+         console.log("standard function call with name:", functionName);
         const funcDef = this.allFunctions.find(f => f.name === functionName);
         /// ignore uuid if not defined
         if (funcDef.uuid != undefined) {
             functionArguments.uuid = funcDef.uuid;
         }
+        console.log("function definition:", funcDef);
         
         functionArguments.dataType = funcDef.dataType;
         functionArguments.name = functionName;
@@ -150,14 +156,17 @@ class FunctionHandler {
 
         if (funcDef.commType === "readWrite" || funcDef.commType === "write") {
           const method = this.comObject.getMethod("write");
+          console.log("calling write method with arguments:", functionArguments);
           functionReturnPromise = method.call(this.comObject, functionArguments);
         } else if (funcDef.commType === "writeRaw") {
           // Write raw data to output method
+         console.log("calling write raw", functionArguments);
           const method = this.comObject.getMethod("writeRaw");
           const newArgument = String(functionArguments.value);
           functionReturnPromise = method.call(this.comObject, newArgument);
         } else {
           // Read only
+          console.log("calling read", functionArguments);
           const method = this.comObject.getMethod("read");
           functionReturnPromise = method.call(this.comObject, functionArguments);
         }

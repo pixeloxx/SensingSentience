@@ -52,7 +52,7 @@ def handle_command(cmd):
     global pause_event
     if cmd == "pause":
         pause_event.set()
-        send_message("tts", "paused")
+        print(f"pausing", file=sys.stderr)
     elif cmd == "resume":
         pause_event.clear()
         send_message("tts", "resumed")

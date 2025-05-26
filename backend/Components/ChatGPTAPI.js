@@ -30,6 +30,7 @@ class ChatGPTAPI {
    * Optionally, handle function calls.
    */
   async send(sQuestion, role, funtionName) {
+    console.log("send to llm:"+role+" "+sQuestion+" "+funtionName)
     return new Promise((resolve, reject) => {
       (async () => {
         // Prepare API request data
@@ -86,7 +87,7 @@ class ChatGPTAPI {
 
           const oJson = await response.json();
          
-          console.log(oJson.choices[0].message,);
+         // console.log(oJson.choices[0].message,);
 
           // Handle API errors
           if (oJson.error && oJson.error.message) {

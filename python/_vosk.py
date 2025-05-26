@@ -65,9 +65,15 @@ class SpeechRecognizer:
                     partial_json = json.loads(self.recognizer.PartialResult())
                     partial = partial_json.get('partial', '')
                     self.callback(None, partial)
-
+            else:
+                # clear the recognizer's buffers
+                self.recognizer.Reset()
+                # print("Recognizer is paused, clearing buffers.", file=sys.stderr)
+    
     def pause(self):
         self.PAUSE = True
+        # clear all audio buffers
+        
         print("Recognizer paused.", file=sys.stderr)
 
     def resume(self):

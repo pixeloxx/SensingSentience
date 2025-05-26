@@ -32,7 +32,7 @@ function callBackSpeechToText(msg) {
     console.log('stt:', msg.confirmedText);
     complete = true;
     msg.speech = msg.confirmedText
-    // send message to LLM API
+    // passe message to LLM API
     LLM_API.send(msg.confirmedText, "user").then((response) => {
       LLMresponseHandler(response);
     });
@@ -56,10 +56,10 @@ function callBackSpeechToText(msg) {
 function comCallback(message) {
   console.log("com callback");
   console.log(message);
-  // send message to LLM API
-  // LLM_API.send(message, "user").then((response) => {
-  //   LLMresponseHandler(response);
-  // });
+  // pass message to LLM API
+   LLM_API.send(message, "user").then((response) => {
+     LLMresponseHandler(response);
+  });
 }
 
 // test
@@ -74,7 +74,6 @@ if (config.communicationMethod == "BLE") {
 }
 
 // 3. Start HTTP/WebSocket server
-
 app.use(cors()); // Configure middleware for Express.js server.
 app.use(express.json()); // Configure middleware for Express.js server.
 
@@ -173,6 +172,7 @@ LLM_API.send("Tell me the time", "user").then((response) => {
 
 function LLMresponseHandler(returnObject) {
   // TODO: protect against endless recursion
+  // TODO: add error handling
   console.log(returnObject);
   if (returnObject.role == "assistant") {
     // convert the returnObject.message to string to avoid the class having access to the returnObject
@@ -210,6 +210,7 @@ let textToSpeech = new TextToSpeech(callBackTextToSpeech);
 
 function callBackTextToSpeech(msg) {
   if (msg.tts == "started" || msg.tts == "resumed") {
+    console.log("pausing speech to text");
     speechToText.pause();
   } else if (msg.tts == "stopped" || msg.tts == "paused") {
      speechToText.resume();

@@ -20,9 +20,9 @@ function draw() {
     push()
     stroke(255);
     noFill();
-    circle((width / 2), (height / 2), max(width, height)+5);
+    circle((width / 2), (height / 2), max(width, height) + 5);
     pop();
-   // backgroundFill();
+    // backgroundFill();
     fill(0);
     textSize(36);
     textAlign(CENTER, CENTER);
@@ -30,22 +30,26 @@ function draw() {
 
 function simpleTruchetPatern() {
     noFill();
-    let spacing = 30
-    stroke(255,255,255,30);
+    let spacing = 40; // Spacing between arcs
+    stroke(255, 255, 255, 30);
     strokeWeight(2);
-    for (let x = 0; x < width; x += spacing) {
-        for (let y = 0; y < height; y += spacing) {
-            randomSeed(x*y);
-            let r = random(1);
-            if (r >0.5) {
-                arc(x+spacing, y, spacing, spacing, HALF_PI, PI);
-                arc(x, y+spacing, spacing, spacing, -HALF_PI, 0);
-            } else {
-                arc(x+spacing, y+spacing, spacing, spacing, PI, -HALF_PI);
-                arc(x, y, spacing, spacing, 0, HALF_PI);
+    //
+    push();
+
+        for (let x = 0; x < width; x += spacing) {
+            for (let y = 0; y < height; y += spacing) {
+                randomSeed(x * y);
+                let r = random(1);
+                if (r > 0.5) {
+                    arc(x + spacing, y, spacing, spacing, HALF_PI, PI);
+                    arc(x, y + spacing, spacing, spacing, -HALF_PI, 0);
+                } else {
+                    arc(x + spacing, y + spacing, spacing, spacing, PI, -HALF_PI);
+                    arc(x, y, spacing, spacing, 0, HALF_PI);
+                }
             }
         }
-    }
+    pop();
 }
 
 function backgroundFill() {

@@ -37,6 +37,13 @@ class SerialCommunication extends ICommunicationMethod {
         this.connected = false;
         console.error('Serial port error:', err.message);
         if (this.callback) this.callback('error', err.message);
+        console.log('attempting to reconnect');
+        this.port.open((err) => {
+          if (err) {
+            console.error('Error opening port:', err.message);
+          }
+        });
+
       });
 
       this.port.on('close', () => {
@@ -46,9 +53,8 @@ class SerialCommunication extends ICommunicationMethod {
       });
 
       this.parser.on('data', (data) => {
-        console.log('Received from serial:', data.trim());
-        if (this.callback) this.callback('data', data.trim());
-      });
+        this.receive(data)
+      })
 
       this.port.open((err) => {
         if (err) {
@@ -75,9 +81,10 @@ class SerialCommunication extends ICommunicationMethod {
   write(data) {
     return new Promise((resolve, reject) => {
       if (!this.port || !this.port.isOpen) {
-        return reject(new Error('Serial port not open'));
+        return reject(new Error('Serial port not open, trying to reconnect'));
       }
-      const dataToSend = typeof data === 'string' ? data : JSON.stringify(data);
+      const dataToSend = "" + data.name + "" + data.value;
+      console.log('Writing to serial:', dataToSend);
       this.port.write(dataToSend + '\n', (err) => {
         if (err) {
           console.error('Error writing to serial:', err.message);
@@ -89,15 +96,39 @@ class SerialCommunication extends ICommunicationMethod {
   }
 
   writeRaw(dataString) {
-    return this.write(dataString);
+    return new Promise((resolve, reject) => {
+      if (!this.port || !this.port.isOpen) {
+        return reject(new Error('Serial port not open'));
+      }
+      const dataToSend = dataString;
+      console.log('Writing to serial:', dataToSend);
+      this.port.write(dataToSend + '\n', (err) => {
+        if (err) {
+          console.error('Error writing to serial:', err.message);
+          return reject(err);
+        }
+        resolve({ description: 'Writing to Serial', value: dataToSend });
+      });
+    });
   }
 
   read() {
+    console.log("waiting for read response");
     // Reading is event-driven; use the callback to handle incoming data.
     // Optionally, you could implement a Promise that resolves on next data event.
-    return Promise.resolve({
-      description: 'Read is event-driven. Listen for "data" events.',
-      value: '',
+    return new Promise((resolve, reject) => {
+      if (!this.port || !this.port.isOpen) {
+        return reject(new Error('Serial port not open'));
+      }
+      const dataToSend = "" + data.name;
+      console.log('Writing to serial:', dataToSend);
+      this.port.write(dataToSend + '\n', (err) => {
+        if (err) {
+          console.error('Error writing to serial:', err.message);
+          return reject(err);
+        }
+        resolve({ description: 'Writing to Serial', value: dataToSend });
+      });
     });
   }
 
@@ -128,10 +159,32 @@ class SerialCommunication extends ICommunicationMethod {
     console.log('Serial connection closed');
   }
 
-  receive(eventSender, newData) {
-    // Custom handler for received data if needed
-    console.log('Received:', newData);
+  receive(newData) {
+    console.log("new serial communication")
+    console.log(newData)
+
+    const parts = newData.split(':');
+
+    if (parts.length === 2) {
+      const commandName = parts[0];
+      const value = parts[1].trimEnd();
+
+      let updateObject = {
+        description: commandName,
+        value: value,
+        // type: notifyObject.type,
+      }
+
+      try {
+        console.log(updateObject)
+        this.callback(JSON.stringify(updateObject));
+      } catch (error) {
+        console.log(error)
+      }
+    }
   }
 }
+
+
 
 export default SerialCommunication;

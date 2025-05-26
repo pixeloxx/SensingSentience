@@ -44,7 +44,6 @@ void loop() {
     processCommand(command);
   }
     
-  // remove this
   if (analogRead(A0)>= 1000 && currentMillis - previousMillisShake >= 2000) {
        notify("press", true);
       previousMillisShake = currentMillis;
