@@ -34,10 +34,10 @@ In config select "Interfacing Options" > "Serial".
 ### 3. **Install Dependencies**
 - Update the system and install Node.js, npm, and Chromium etc:
   ```bash
-
   sudo apt update && sudo apt upgrade -y
   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs chromium-browser git
+  ```
 
 ### 4. **Clone the Repository**
 ```bash
