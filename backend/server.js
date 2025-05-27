@@ -1,3 +1,6 @@
+// TODO: add more stable handling of serial errors and disconnections
+// Add voice option in config, potentially download voices if they are not available.
+
 import express from 'express';
 import cors from 'cors';
 import http from 'http';
@@ -25,6 +28,7 @@ const wss = new WebSocketServer({ server });
 
 // 1. setup speech to text
 speechToText = new SpeechToText(callBackSpeechToText);
+//speechToText.pause();
 
 function callBackSpeechToText(msg) {
   let complete = false;
@@ -50,15 +54,14 @@ function callBackSpeechToText(msg) {
   }
 }
 
-
 // 2. setup comunication method for arduino
 
 function comCallback(message) {
   console.log("com callback");
   console.log(message);
-  // pass message to LLM API
-   LLM_API.send(message, "user").then((response) => {
-     LLMresponseHandler(response);
+  // pass messages directly from the arduino to to LLM API
+  LLM_API.send(message, "user").then((response) => {
+    LLMresponseHandler(response);
   });
 }
 
@@ -102,7 +105,6 @@ wss.on('connection', (ws, req) => {
       }
       console.log('Received command via WebSocket:', cmd);
 
-      // handle a "pause" command
       if (cmd.command === 'pause') {
         speechToText.pause();
         ws.send('Sent pause command to Python');
@@ -114,6 +116,9 @@ wss.on('connection', (ws, req) => {
           LLMresponseHandler(response);
         });
         ws.send('Sent message to LLM API');
+      } else if (cmd.command === 'protocol') {
+        // Send the conversation protocol to the client
+        ws.send(JSON.stringify(config.conversationProtocol))
       } else {
         // ws.send('Unknown command');
       }
@@ -158,7 +163,6 @@ function frontEndFunction(functionName, args) {
 
 const functionHandler = new FunctionHandler(config, communicationMethod);
 
-
 // 4. setup LLM API
 
 let LLM_API = new ChatGPTAPI(config, functionHandler);
@@ -171,7 +175,7 @@ LLM_API.send("Tell me the time", "user").then((response) => {
 */
 
 function LLMresponseHandler(returnObject) {
-  // TODO: protect against endless recursion
+
   // TODO: add error handling
   console.log(returnObject);
   if (returnObject.role == "assistant") {
@@ -183,16 +187,19 @@ function LLMresponseHandler(returnObject) {
       // SpeechSynthesiser.say(message, voice);
     } catch (error) {
       console.log(error);
+      updateFrontend("", "", error);
     }
   } else if (returnObject.role == "function") {
-    // call the function with the arguments
+    // call the frontend function with the arguments
     const functionName = returnObject.message;
     const args = returnObject.arguments;
     frontEndFunction(functionName, args);
   }
+
   if (returnObject.promise != null) {
     console.log("there is a promise")
     // there is another nested promise 
+    // TODO: protect against endless recursion
     returnObject.promise.then((returnObject) => {
       LLMresponseHandler(returnObject)
     })
@@ -202,6 +209,7 @@ function LLMresponseHandler(returnObject) {
 }
 
 function endExchange() {
+  // todo: setup timer for continous interaction 
 }
 
 // 5. setup Text to Speech
@@ -213,7 +221,7 @@ function callBackTextToSpeech(msg) {
     console.log("pausing speech to text");
     speechToText.pause();
   } else if (msg.tts == "stopped" || msg.tts == "paused") {
-     speechToText.resume();
+    speechToText.resume();
   } else {
     speechToText.resume();
   }

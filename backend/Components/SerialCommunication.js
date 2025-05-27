@@ -112,22 +112,42 @@ class SerialCommunication extends ICommunicationMethod {
     });
   }
 
-  read() {
-    console.log("waiting for read response");
-    // Reading is event-driven; use the callback to handle incoming data.
-    // Optionally, you could implement a Promise that resolves on next data event.
+  read(command = "") {
+    const dataToSend = "" + command.name + ""
+    console.log("waiting for read response on command:" + dataToSend);
+
     return new Promise((resolve, reject) => {
       if (!this.port || !this.port.isOpen) {
         return reject(new Error('Serial port not open'));
       }
-      const dataToSend = "" + data.name;
-      console.log('Writing to serial:', dataToSend);
+
+      // Set up a one-time handler for the next response
+      let timeoutId;
+      const onData = (newData) => {
+        // Optionally, filter for the expected response here
+        clearTimeout(timeoutId);
+        this._pendingRead = null;
+        this.callback(JSON.stringify(newData));
+        console.log("read response received:", newData);
+        resolve({ description: 'response', value: newData });
+      };
+
+      // Save the handler so receive() can use it
+      this._pendingRead = onData;
+
+      // Set up a timeout
+      timeoutId = setTimeout(() => {
+        this._pendingRead = null;
+        reject(new Error('Serial read timed out'));
+      }, 3000); // 3 seconds timeout
+
+      // Send the command to the serial device
       this.port.write(dataToSend + '\n', (err) => {
         if (err) {
-          console.error('Error writing to serial:', err.message);
+          clearTimeout(timeoutId);
+          this._pendingRead = null;
           return reject(err);
         }
-        resolve({ description: 'Writing to Serial', value: dataToSend });
       });
     });
   }
@@ -160,31 +180,46 @@ class SerialCommunication extends ICommunicationMethod {
   }
 
   receive(newData) {
-    console.log("new serial communication")
-    console.log(newData)
-
+    // data from serial could be either an event or a response to a prior command
+    console.log("new serial communication");
+    console.log(newData);
     const parts = newData.split(':');
+    const commandName = parts[0];
+    const value = parts[1].trimEnd();
 
+    let updateObject = {
+      description: commandName,
+      value: value,
+      // type: notifyObject.type,
+    };
+
+    // If there's a pending read promise, resolve it and return
+    if (this._pendingRead) {
+      console.log("open read promise found, resolving with data:", newData);
+      const handler = this._pendingRead;
+      this._pendingRead = null;
+      handler(updateObject);
+      return;
+    }
+
+    // Otherwise, treat as a regular event/notification
     if (parts.length === 2) {
-      const commandName = parts[0];
-      const value = parts[1].trimEnd();
-
-      let updateObject = {
-        description: commandName,
-        value: value,
-        // type: notifyObject.type,
-      }
-
       try {
-        console.log(updateObject)
-        this.callback(JSON.stringify(updateObject));
+        console.log(updateObject);
+        if (this.callback) {
+          this.callback(JSON.stringify(updateObject));
+        }
       } catch (error) {
-        console.log(error)
+        console.log(error);
+      }
+    } else {
+      // Handle unexpected format or just pass raw data
+      if (this.callback) {
+        this.callback(JSON.stringify({ description: "raw", value: newData }));
       }
     }
   }
+
 }
-
-
 
 export default SerialCommunication;

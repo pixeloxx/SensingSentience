@@ -113,7 +113,17 @@ class ChatGPTAPI {
               content: message.function_call.arguments
             });
             // console.log(result);
-            resolve(result);
+            
+            // if the function call has a return value, pass it back to the LLM, otherwise just resolve the result
+            if (result.description == 'response') {
+              // description: 'response', value: newData }
+               resolve(this.send(result.description, "function", result.value))
+            } else {
+               resolve(result);
+            }
+
+            
+
           } else {
             console.log("normal response");
             // Handle normal response

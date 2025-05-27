@@ -4,23 +4,23 @@ class ICommunicationMethod {
         this.connected = false;
     }
     connect() {
-       console.log("Method 'connect()' must be implemented.");
+       console.trace("Method 'connect()' must be implemented.");
     }
 
     write(data) {
-        console.log("Method 'send(data)' must be implemented.");
+        console.trace("Method 'send(data)' must be implemented.");
     }
 
     read(data) {
-        console.log("Method 'read(data)' must be implemented.");
+        console.trace("Method 'read(data)' must be implemented.");
     }
 
     recieve() {
-        console.log("Method 'recieve()' must be implemented.");
+        console.trace("Method 'recieve()' must be implemented.");
     }
 
     onDisconnected() {
-        console.log("Method 'disconnect()' must be implemented.");
+        console.trace("Method 'disconnect()' must be implemented.");
     }
 
     checkConection() {

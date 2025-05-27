@@ -1,6 +1,3 @@
-
-// TODO: unffinished stub
-
 class FunctionHandler {
   constructor(config, comObject) {
 
@@ -150,7 +147,7 @@ class FunctionHandler {
         }
         console.log("function definition:", funcDef);
         
-        functionArguments.dataType = funcDef.dataType;
+        functionArguments.dataType = funcDef.parameters.type;
         functionArguments.name = functionName;
         console.log("arguments:", functionArguments);
 
@@ -173,7 +170,10 @@ class FunctionHandler {
       }
       // Wait for the function to complete and handle the result
       try {
+    
         const functionReturnObject = await functionReturnPromise;
+         console.log("functionReturnPromise:");  
+        console.log(functionReturnPromise);
         let formattedValue = JSON.stringify({
           [functionReturnObject.description]: functionReturnObject.value
         });
@@ -188,8 +188,9 @@ class FunctionHandler {
           returnObject.message = "function_call with error: " + functionReturnObject.value;
           returnObject.role = "error";
         } else {
-          returnObject.message = "function_call " + functionName;
+          returnObject.message = "function_call complete: " + functionName;
           returnObject.role = "function";
+          returnObject.value = formattedValue;
         }
         return returnObject;
       } catch (err) {
