@@ -2,6 +2,11 @@
 
 This project makes it easy to connect physical devies to a large language model, for prototyping so called "Large Language Objects". The project is essentially a voice assistant optimised for running on a raspberry pi with an attached arduino. The code has been on Linux and Mac OS. 
 
+After followinf the installation instructions, create an .env file with the openAI api key in the followin format: 
+ 
+ ```bash
+OPENAI_API_KEY='******************************' 
+  ```
 
 ---
 
