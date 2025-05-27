@@ -61,14 +61,10 @@ In config select "Interfacing Options" > "Serial".
 ### 3. **Install Dependencies**
 - Update the system and install Node.js, npm, and Chromium etc:
   ```bash
-  sudo apt install wtype
+
   sudo apt update && sudo apt upgrade -y
   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
   sudo apt install -y nodejs chromium-browser git
-  openbox chromium-browser
-
-# Now install Python packages inside the venv
-pip install SpeechRecognition pyaudio git+https://github.com/openai/whisper.git
 
 ### 4. **Clone the Repository**
 ```bash
@@ -85,6 +81,7 @@ npm install
 
 python3 -m venv python/venv
 source python/venv/bin/activate
+
 pip3 install pyaudio vosk sounddevice numpy piper
 pip3 install --no-deps -r requirements.txt
 pip3 install onnxruntime
