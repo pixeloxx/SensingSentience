@@ -3,7 +3,7 @@
 This project makes it easy to connect physical devies to a large language model, for prototyping so called "Large Language Objects". The project is essentially a voice assistant optimised for running on a raspberry pi with an attached arduino. The code has been on Linux and Mac OS. 
 
 After followinf the installation instructions, create an .env file with the openAI api key in the followin format: 
- 
+
  ```bash
 OPENAI_API_KEY='******************************' 
   ```
@@ -56,7 +56,7 @@ python3 -m venv python/venv
 source python/venv/bin/activate
 
 pip3 install pyaudio vosk sounddevice numpy piper
-pip3 install --no-deps -r requirements.txt
+pip3 install --no-deps -r python/requirements.txt
 pip3 install onnxruntime
 
 
