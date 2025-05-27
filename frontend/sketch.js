@@ -15,7 +15,7 @@ function setup() {
 
 function draw() {
     // Display the message on the canvas
-    background(0); // Clear the canvas
+    background(100,0,0); // Clear the canvas
     simpleTruchetPatern();
     push()
     stroke(255);
