@@ -28,7 +28,7 @@ const wss = new WebSocketServer({ server });
 
 // 1. setup speech to text
 speechToText = new SpeechToText(callBackSpeechToText);
-//speechToText.pause();
+
 
 function callBackSpeechToText(msg) {
   let complete = false;
@@ -166,6 +166,10 @@ const functionHandler = new FunctionHandler(config, communicationMethod);
 // 4. setup LLM API
 
 let LLM_API = new ChatGPTAPI(config, functionHandler);
+
+ LLM_API.send("tell the user that the should make them selves ready by inserting the interface", "system").then((response) => {
+      LLMresponseHandler(response);
+    });
 
 // test the LLM API
 /*

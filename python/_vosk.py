@@ -13,7 +13,7 @@ RATE = 16000  # Sample rate
 CHUNK = 1024  # Frame size
 FORMAT = pyaudio.paInt16
 THRESHOLD = 1000  # Adjust this to match your environment's noise level
-MODEL_PATH_LARGE = "STTmodels/vosk-model-small-en-us-0.15"  # Path to your Vosk model
+MODEL_PATH_LARGE = "STTmodels/vosk-model-en-us-0.22"  # Path to your Vosk model
 
 
 

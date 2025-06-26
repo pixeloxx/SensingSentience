@@ -2,7 +2,7 @@
 
 window.frontendFunctions = {
     // custom functions after this line
-    start_party: function(command) {
+    start_party: function (command) {
         console.log("Starting party mode");
         function createGlitter() {
             const glitter = document.createElement('div');
@@ -26,19 +26,50 @@ window.frontendFunctions = {
                 glitter.remove();
             }, 5000);
         }
-          function getRandomColor() {
+        function getRandomColor() {
             const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'pink', 'orange'];
             return colors[Math.floor(Math.random() * colors.length)];
         }
 
         let partyEffect = setInterval(createGlitter, 10);
-                // stop after 10 seconds
-            setTimeout(() => {
-                clearInterval(partyEffect);
-            }, 10000);
+        // stop after 10 seconds
+        setTimeout(() => {
+            clearInterval(partyEffect);
+        }, 10000);
     },
-    get_value: function(command) {
+    get_value: function (command) {
         console.log("Starting party mode");
-        return(Math.random() * 100);
-    }
+        return (Math.random() * 100);
+    },
+
+showAnimalGUI: function (ID) {
+    showLayout(ID);
+},
+
+showLayout: function (idx) {
+       const layouts = ['layout1', 'layout2'];
+ layouts.forEach((l, i) => {
+        const el = document.getElementById(l);
+        if (!el) return;
+        // Always remove 'leaving' before toggling 'visible'
+        el.classList.remove('leaving');
+        if (i === idx) {
+            el.classList.add('visible');
+        } else if (el.classList.contains('visible')) {
+            el.classList.remove('visible');
+            el.classList.add('leaving');
+            // Remove 'leaving' after transition
+            el.addEventListener('transitionend', function handler(e) {
+                // Only remove if the transition is for transform or opacity
+                if (e.propertyName === 'transform' || e.propertyName === 'opacity') {
+                    el.classList.remove('leaving');
+                    el.removeEventListener('transitionend', handler);
+                }
+            });
+        } else {
+            el.classList.remove('visible', 'leaving');
+        }
+    });
+}
+
 }

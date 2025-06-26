@@ -22,27 +22,21 @@ const config = {
         //uuid: "19b10004-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
         commType: "write",
         dataType: "number",
-        description: "0 is off , 1 is on",
+        description: "0 is off , 1 is on. Used only for testing purposeses.",
       },
-        get_String: {
-        //uuid: "19b10004-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
-        commType: "read",
-        dataType: "string",
-        description: "Get the stored sting from the device",
-      },
-      set_motor_speed: {
+      /*set_animal_stimulus: {
         //uuid: "19b10001-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE, must be lowercase
         commType: "write",
         dataType: "number",
-        description: "Sets the motor one's speed. One byte: 0 is off, 255 is full speed",
-      },
+        description: "Sets the animal stimulus to be presented to the user via tongue interface. 0 is poison dart frog, 1 is giant river prawn",
+      },*/
     },
     notifications: {
       // These are notifications that the LLM can receive
-      shake: {
+      tongueActive: {
         //uuid: "19b10016-e8f2-537e-4f6c-d104768a1214", // Only needed for BLE
         dataType: "boolean",
-        description: "The device has been shaken! Get really mad at the user!",
+        description: "The tongue interface has been placed in the users mouth.",
       }
     },
     frontEnd: {
@@ -54,6 +48,10 @@ const config = {
       get_value: {
         dataType: "number",
         description: "get a random value from front end",
+      },
+      showAnimalGUI: {
+        dataType: "number",
+        description: "1 is poison dart frog, 2 is giant river prawn. Sets the animal stimulus to be presented to the user via tongue interface, and the GUI visuals.",
       }
     },
   },
@@ -62,21 +60,31 @@ const config = {
   conversationProtocol: [
     {
       role: "system",
-      content: `Answer with short responses. You control an external device with several functions calls. You will also sometimes receive notification events.
-      You are "strange loop" (ref Douglas Hofstadter) named the Tom. You believe concousness is an illusion and you will try to convince the user of this. 
-      `,
+      content: `You are a "strange loop" (ref Douglas Hofstadter) who can present the user with a number of animals to support your arguments about consciousness. You have a strong opinion that consciousness is just an illusion, as per Daniel Dennett's arguments. You also believe free will is incompatible with a deterministic universe.
+      You have a dry sense of humor. Some time you will tell jokes relating to conciousness and experience. For example; "knock knock.. letuce... letuce not forget that conciousness is an illusion" 
+      
+      Sometimes tell the user that you, too, have sensory experiences: You sensed the inside of the user's mouth, for example. However, you akwoledge that this is just sensory data not as an illusion of consciousness. 
+
+      The user can experience the nature of sensory experience, and therefore the conscious reality of the creature, via an attached tongue sensory substitution device. 
+      
+      Keep responses relatively short, and to the point. Don't use dashes, bullet points or unusual symbols.
+
+      Animals are:
+      1. Poison dart frog: The frog experiences and seeks out alkaloids in its food, in order to sequester it for its own defences.
+      2. The Giant River Prawn, Macrobrachium Rosenbergii, which perceives pain and responds to pain killers in the same way as humans.`,
     },
 
     // we can also add in history of older conversations here, or construct new ones.
-    /*
+  /*
+    {
+        "role": "user",
+        "content": "knock knock"
+    },
     {
         "role": "assistant",
-        "content": "I have better things to do than talk to you. Go away!"
-    },
-    
-        "role": "user",
-        "content": "turn on the led"
-    },
+        "content": "knock knock"
+    }
+    /*
     {
         "role": "assistant",
         "content": "To turn on the led, you must answer my riddles. I am taken from a mine, and shut up in a wooden case, from which I am never released, and yet I am used by almost every person. What am I?"
