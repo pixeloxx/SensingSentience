@@ -1,5 +1,7 @@
 window.user = '';
 window.assistant = '';
+window.error = '';
+window.system = '';
 window.userComplete = false;
 
 // run connectToWebSocket on page load
@@ -7,22 +9,26 @@ window.addEventListener('load', () => {
     connectToWebSocket();
 });
 
-function updateSubtitle() {
+function updateDialogContent(querySelectorID, text, complete) {
     // upate div class user and assistant
-    const userDiv = document.querySelector('.user');
-    const assistantDiv = document.querySelector('.assistant');
-    if (userDiv) {
-        userDiv.innerHTML = window.user;
-       console.log('window.userComplete:', window.userComplete);
-        if (window.userComplete) {
-            userDiv.classList.add('complete');
-        } else {
-            userDiv.classList.remove('complete');
-        }
+    const div = document.querySelector(querySelectorID);
+
+    div.innerHTML = text;
+    if (complete) {
+        div.classList.add('complete');
+    } else {
+        div.classList.remove('complete');
     }
-    if (assistantDiv) {
-        assistantDiv.innerHTML = window.assistant;
-    }
+
+    clearTimeout(parseInt(div.dataset.fadeTimeout));
+    div.classList.remove('fade-out');
+
+    // Set new timeout for fade-out
+    const timeoutId = setTimeout(() => {
+        div.classList.add('fade-out');
+    }, 5000);
+
+    div.dataset.fadeTimeout = timeoutId;
 
 }
 function connectToWebSocket() {
@@ -30,27 +36,34 @@ function connectToWebSocket() {
     ws = new WebSocket('ws://localhost:3000');
     // if the server is not runnning, attempt again
     ws.onmessage = (event) => {
-
         try {
             const data = JSON.parse(event.data);
             console.log(data);
             if (data.backEnd) {
-                if (data.backEnd.messageIn) {
-                    window.user = data.backEnd.messageIn;
-                    updateSubtitle();
+                if (data.backEnd.messageType == "assistant") {
+                    window.assistant = data.backEnd.message;
+                    updateDialogContent(".assistant", window.assistant);
                 }
-                if (data.backEnd.messageOut) {
-                    window.assistant = data.backEnd.messageOut;
-                    updateSubtitle();
+
+                if (data.backEnd.messageType == "system") {
+                    window.assistant = data.backEnd.message;
+                    updateDialogContent(".system", window.system);
                 }
-                if (typeof data.backEnd.messageInComplete === "boolean") { 
-                    console.log('messageInComplete:', data.backEnd.messageInComplete);
-                    window.userComplete = data.backEnd.messageInComplete;
-                    updateSubtitle();
+                if (data.backEnd.messageType == "error") {
+                    window.assistant = data.backEnd.message;
+                    updateDialogContent(".error", window.error);
+                }
+
+                if (data.backEnd.messageType == "user") {
+                    window.user = data.backEnd.message;
+                    if (typeof data.backEnd.complete === "boolean") {
+                        console.log('messageInComplete:', data.backEnd.complete);
+                        window.userComplete = data.backEnd.complete;
+                    }
+                    updateDialogContent(".user", window.user, window.userComplete);
                 }
                 if (data.backEnd.functionName) {
                     let returnValue = { frontEnd: { name: data.backEnd.functionName, value: undefined } };
-
                     console.log('Function call received:', data.functionName);
                     // Call the function with the provided arguments
                     const functionName = data.backEnd.functionName;
@@ -88,8 +101,8 @@ function connectToWebSocket() {
     };
     // Handle connection close and retry
     ws.onclose = () => {
-        console.warn("WebSocket connection closed. Retrying in 3 seconds...");
-        setTimeout(connectToWebSocket, 3000); // Retry connection after 3 seconds
+        console.warn("WebSocket connection closed. Retrying in .5 second...");
+        setTimeout(connectToWebSocket, 500);
     };
 
     // Handle connection errors

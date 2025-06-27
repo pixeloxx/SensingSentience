@@ -136,7 +136,10 @@ class FunctionHandler {
         return returnObject;
       } else if (comMethod) {
         console.log("function call with basic comm method ");
-        functionReturnPromise = comMethod.call(this.comObject, functionArguments);
+        console.log("comMethod:", functionName);
+        const method = this.comObject.getMethod(functionName);
+        // this line is incorect
+        functionReturnPromise = method.call(this.comObject);
       } else {
         // Standard function
          console.log("standard function call with name:", functionName);
@@ -172,7 +175,7 @@ class FunctionHandler {
       try {
     
         const functionReturnObject = await functionReturnPromise;
-         console.log("functionReturnPromise:");  
+        console.log("functionReturnPromise:");  
         console.log(functionReturnPromise);
         let formattedValue = JSON.stringify({
           [functionReturnObject.description]: functionReturnObject.value
@@ -189,7 +192,7 @@ class FunctionHandler {
           returnObject.role = "error";
         } else {
           returnObject.message = "function_call complete: " + functionName;
-          returnObject.role = "function";
+          returnObject.role = "functionReturnValue";
           returnObject.value = formattedValue;
         }
         return returnObject;

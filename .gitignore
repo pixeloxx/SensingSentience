@@ -14,8 +14,8 @@ yarn-error.log*
 # OS-specific files
 .DS_Store
 
-python/STTmodels/vosk-model-en-us-0.22
-python/STTmodels/vosk-model-en-us-0.22-lgraph
+python/STTmodels/
+python/TTSmodels/
 # Python cache
 __pycache__/
 *.pyc

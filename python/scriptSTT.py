@@ -1,6 +1,7 @@
 import sys
 import json
-from _vosk import SpeechRecognizer  
+from _vosk import SpeechRecognizer 
+from Microphone.scriptMicrophone import MicrophoneStream 
 import threading
 # 
 # Comms 
@@ -8,18 +9,37 @@ import threading
 _recognizer = None
 _recognizer_ready = threading.Event()
 
-def send_message(name, string):
+RATE = 16000
+CHUNK = 1024
+
+def send_message(name, string, direction):
     msg = {f"{name}": f"{string}"}
+    if direction is not None:
+        msg["direction"] = direction
     print(json.dumps(msg))
     sys.stdout.flush()
 
 def STTCallBack(text, partial):
-      if text:
-           print(f"Final Text: {text}",file=sys.stderr)
-           send_message("confirmedText", text)
-      if partial:
-           #print(f"Partial Text: {partial}",file=sys.stderr)
-           send_message("interimResult", partial)
+    direction = None
+    # Try to get DoA if mic has get_doa or get_direction
+    if (
+        hasattr(mic, "respeaker")
+        and hasattr(mic.respeaker, "is_voice_active")
+        and callable(getattr(mic.respeaker, "is_voice_active", None))
+        and mic.respeaker.is_voice_active()
+        and hasattr(mic.respeaker, "get_doa")
+        and callable(getattr(mic.respeaker, "get_doa", None))
+    ):
+        try:
+            direction = mic.respeaker.get_doa()
+        except Exception:
+            direction = None
+    if text:
+        print(f"Final Text: {text}", file=sys.stderr)
+        send_message("confirmedText", text, direction)
+    if partial:
+        # print(f"Partial Text: {partial}", file=sys.stderr)
+        send_message("interimResult", partial, direction)
 
 def pauseSpeechToText():
     global _recognizer
@@ -51,7 +71,6 @@ def resumeSpeechToText():
 
 
 def main():
-    # Use the default microphone (no device_index)
     try:
         setUpSpeechToText()
     except KeyboardInterrupt:
@@ -61,7 +80,13 @@ def main():
 def setUpSpeechToText():
     global _recognizer
     global _recognizer_ready
-    _recognizer = SpeechRecognizer(size="medium", callback=STTCallBack)
+    global mic
+    mic = MicrophoneStream(rate=RATE, chunk=CHUNK)
+
+    if(mic.respeak_active):
+        print("ReSpeaker is active, using it for audio input.", file=sys.stderr)
+    
+    _recognizer = SpeechRecognizer(audio_source=mic, size="medium", callback=STTCallBack, rate=RATE, chunk=CHUNK)
     _recognizer_ready.set()
     threading.Thread(target=_recognizer.run, daemon=True).start()
 
@@ -87,5 +112,12 @@ def stdin_listener():
 
 if __name__ == "__main__":
     main()
-    stdin_listener()
+    try:
+        stdin_listener()
+    except KeyboardInterrupt:
+        print("Interrupted by user. Exiting cleanly.")
+    finally:
+        # Clean up your microphone/stream here
+        mic.close()  # or respeaker.terminate(), etc.
+        print("Resources released.")
 

@@ -158,6 +158,80 @@ class ChatGPTAPI {
   }
 
 
+  /**
+ * Send an image to OpenAI API and handle the response.
+ * @param {string} image - base64-encoded image string (e.g., "data:image/png;base64,...")
+ * @param {string} role - role for the message, usually "user"
+ * @returns {Promise<{message: string, role: string}>}
+ */
+async sendImage(image, role = "user") {
+  // Remove data URL prefix if present
+  const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+
+  const messages = [
+    {
+      role: "system",
+      content: "Describe the image. Be specific about the objects, people, colors, textures, and context.",
+    },
+    {
+      role: role,
+      content: [
+        {
+          type: "image_url",
+          image_url: {
+            url: `data:image/png;base64,${base64Data}`,
+          },
+        },
+      ],
+    },
+  ];
+
+  const data = {
+    model: this.Model, // Should be "gpt-4o" or "gpt-4-vision-preview"
+    messages: messages,
+    max_tokens: this.MaxTokens || 1024,
+    user: this.UserId,
+  };
+
+  try {
+    const response = await fetch(this.Url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const oJson = await response.json();
+
+    if (oJson.error && oJson.error.message) {
+      console.log("Error from OpenAI API:", oJson.error.message);
+      throw new Error("Error: " + oJson.error.message);
+    }
+
+    let sMessage = "";
+    if (oJson.choices && oJson.choices[0].message) {
+      sMessage = oJson.choices[0].message.content;
+    }
+
+    if (!sMessage) {
+      sMessage = "No response";
+    }
+
+    // Optionally, add to conversation history
+    this.config.conversationProtocol.push({
+      role: "assistant",
+      content: sMessage,
+    });
+
+    return { message: sMessage, role: "assistant" };
+  } catch (e) {
+    return { message: `Error fetching ${this.Url}: ${e.message}`, role: "error" };
+  }
+}
+
 
 }
 

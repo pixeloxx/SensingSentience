@@ -33,9 +33,9 @@ body {
 
 .dialog {
   position: absolute;
-  bottom: 6vh;
   left: 0;
   right: 0;
+  top: 50%;
   margin-left: auto;
   margin-right: auto;
   width: fit-content;
@@ -44,15 +44,55 @@ body {
   z-index: 9999;
   background-color: #00000033;
   padding: 12px 24px;
+  line-height: 1.6;
+  /* or try 1.7 for even more space */
+  transform: translateY(-50%);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  /* Responsive, larger text */
 }
 
-
 .user {
-  color: rgb(92, 116, 92) !important;
+  padding: 4vw 0vw;
+  color: #fff !important;
+  /* Bluish */
+  text-shadow:
+    0 0 .05vw #fff,
+    0 0 .1vw #fff,
+    0 0 .4vw #fff,
+    0 0 .9vw #f09,
+    0 0 1.3vw #f09,
+    0 0 2.0vw #f09,
+    0 0 3.0vw #f09,
+    0 0 4.0vw #f09;
 }
 
 .complete {
-  color: rgb(212, 253, 212);
+  padding: 4vw 0vw;
+  color: #fff !important;
+  /* Bluish */
+  text-shadow:
+    0 0 .05vw #fff,
+    0 0 .1vw #fff,
+    0 0 .4vw #fff,
+    0 0 .9vw #0fa,
+    0 0 1.3vw #0fa,
+    0 0 2.0vw #0fa,
+    0 0 3.0vw #0fa,
+    0 0 4.0vw #0fa;
+}
+
+.assistant {
+  color: #fff !important;
+  /* White */
+  text-shadow:
+    0 0 .01vw #fff,
+    0 0 .6vw #fff,
+    0 0 1.0vw #fff,
+    0 0 2.0vw #0aff,
+    0 0 3.0vw #0aff,
+    0 0 4.0vw #0aff,
+    0 0 .0vw #0aff,
+    0 0 10.0vw #0aff;
 }
 
 
@@ -62,6 +102,7 @@ body {
 
 .system {
   color: rgb(84, 161, 255);
+  font-size: 1.8vw;
 }
 
 .assistant {
@@ -70,6 +111,7 @@ body {
 
 .error {
   color: rgb(255, 255, 0);
+  font-size: 1.8vw;
 }
 
 /* Define the styles for the microphone circle */
@@ -125,4 +167,24 @@ body {
   to {
     visibility: hidden;
   }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fadeOut 1.5s ease-out forwards;
+}
+
+/* Ensure divs are visible by default */
+.dialog div {
+  opacity: 1;
+  transition: opacity 1.5s ease-out;
 }
