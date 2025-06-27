@@ -36,7 +36,7 @@ function draw() {
     push()
     stroke(255);
     noFill();
-    circle((width / 2), (height / 2), max(width, height) + 5);
+    //circle((width / 2), (height / 2), max(width, height) + 5);
     pop();
     // backgroundFill();
     fill(0);

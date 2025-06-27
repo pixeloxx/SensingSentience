@@ -38,7 +38,6 @@ body {
 
 .dialog {
   position: absolute;
-  bottom: 6vh;
   left: 0;
   right: 0;
   background: rgba(0,0,0,0.8);
@@ -74,6 +73,7 @@ body {
 
 .system {
   color: rgb(84, 161, 255);
+  font-size: 1.8vw;
 }
 
 .assistant {

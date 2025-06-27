@@ -8,8 +8,10 @@ import os
 
 # List of available models
 MODEL_PATHS = [
+    "./TTSmodels/en_GB-cori-high.onnx",
     "./TTSmodels/en_GB-alan-medium.onnx",
     "./TTSmodels/en_US-lessac-medium.onnx"
+    "./TTSmodels/de_DE-thorsten-medium.onnx",
 ]
 
 playback_thread = None
